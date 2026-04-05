@@ -1,0 +1,2 @@
+-- Intentionally minimal.
+-- Users must call require("quickui").setup() in their config.

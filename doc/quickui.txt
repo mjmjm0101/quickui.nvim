@@ -1,0 +1,383 @@
+*quickui.txt*  Lightweight menubar and context menu plugin for Neovim
+
+==============================================================================
+CONTENTS                                                      *quickui-contents*
+
+  1. Introduction .......................... |quickui-introduction|
+  2. Requirements .......................... |quickui-requirements|
+  3. Setup ................................. |quickui-setup|
+  4. Options ............................... |quickui-options|
+  5. Default Keybindings ................... |quickui-keybindings|
+  6. Menu Definition ....................... |quickui-menu-definition|
+  7. Item Fields ........................... |quickui-item-fields|
+  8. API ................................... |quickui-api|
+  9. Highlight Groups ...................... |quickui-highlights|
+
+==============================================================================
+1. INTRODUCTION                                           *quickui-introduction*
+
+quickui.nvim provides three UI components:
+
+  - Menubar: a non-focusable strip at the top of the editor with a dropdown
+    that opens below the selected title.
+  - Context menus: floating popups positioned at the cursor (normal/visual).
+  - Listbox: a centered floating selection UI.
+
+Features:
+  - Nested submenus (multi-level)
+  - Per-item conditions and filetype filters
+  - Fully configurable keybindings
+  - Global keybindings suppressed inside quickui buffers automatically
+
+==============================================================================
+2. REQUIREMENTS                                           *quickui-requirements*
+
+  - Neovim 0.10+
+
+==============================================================================
+3. SETUP                                                       *quickui-setup*
+
+Call `setup()` somewhere in your config (before the first use): >lua
+
+  require("quickui").setup({
+    keymap = "<Space>",
+    border = "single",
+    menus  = { ... },
+  })
+<
+
+==============================================================================
+4. OPTIONS                                                   *quickui-options*
+
+All options are optional. Unset options retain their defaults.
+
+------------------------------------------------------------------------------
+                                                          *quickui-opt-keymap*
+keymap ~
+  Type: `string`
+  Default: `"<Space>"`
+
+  Normal-mode key that toggles the menubar open/closed.
+
+------------------------------------------------------------------------------
+                                                          *quickui-opt-border*
+border ~
+  Type: `string`
+  Default: `"single"`
+
+  Border style for dropdown and popup windows. Accepted values:
+    `"none"` `"single"` `"double"` `"rounded"` `"dotted"` `"dashed"`
+
+  `"dotted"` and `"dashed"` are custom styles provided by this plugin.
+  All other values are passed directly to `nvim_open_win`.
+
+------------------------------------------------------------------------------
+                                                        *quickui-opt-winblend*
+winblend ~
+  Type: `number` or `table`
+  Default: `0`
+
+  Transparency for quickui windows (0 = opaque, 100 = fully transparent).
+
+  As a number, the value is applied to both the bar and menu windows.
+  As a table, specify individually: >lua
+
+    winblend = { bar = 0, menu = 15 }
+<
+
+------------------------------------------------------------------------------
+                                                 *quickui-opt-menubar-padding*
+menubar_padding ~
+  Type: `number`
+  Default: `1`
+
+  Number of space characters added to the left and right of each menu title
+  in the menubar.
+
+------------------------------------------------------------------------------
+                                               *quickui-opt-menubar-separator*
+menubar_separator ~
+  Type: `string`
+  Default: `"│"`
+
+  Character inserted between menubar items. Set to `""` to disable.
+
+------------------------------------------------------------------------------
+                                                      *quickui-opt-highlights*
+highlights ~
+  Type: `table`
+  Default: links to standard Neovim groups (see |quickui-highlights|)
+
+  Override highlight groups. Each key corresponds to a quickui highlight.
+  `accent` and `rtxt` accept a hex color string as shorthand for `{ fg = color }`.
+  All other keys accept a table compatible with |nvim_set_hl()|. >lua
+
+    highlights = {
+      accent      = "#89b4fa",
+      rtxt        = "#a6e3a1",
+      menu        = { bg = "#1e1e2e", fg = "#cdd6f4" },
+      menu_sel    = { bg = "#4974aa", fg = "#cdd6f4" },
+      menu_border = { fg = "#89b4fa" },
+      menubar     = { bg = "#181825", fg = "#cdd6f4" },
+      menubar_sel = { bg = "#313244", fg = "#89b4fa" },
+    },
+<
+
+------------------------------------------------------------------------------
+                                                        *quickui-opt-keymaps*
+keymaps ~
+  Type: `table`
+  Default: see |quickui-keybindings|
+
+  Override individual keymap actions. Each action maps to a list of keys.
+  The user-supplied table is merged on top of the defaults, so only the
+  actions you specify are changed. >lua
+
+    keymaps = {
+      close = { "<Esc>", "q", "<C-c>" },
+    }
+<
+
+  See |quickui-keybindings| for the full list of action names.
+
+------------------------------------------------------------------------------
+                                            *quickui-opt-disable-default-keymaps*
+disable_default_keymaps ~
+  Type: `boolean`
+  Default: `false`
+
+  When `true`, start from an empty keymap set. Only the keys defined in
+  `keymaps` will be active — no defaults are applied. >lua
+
+    disable_default_keymaps = true,
+    keymaps = {
+      up    = { "k" },
+      down  = { "j" },
+      exec  = { "<CR>" },
+      close = { "<Esc>" },
+    },
+<
+
+------------------------------------------------------------------------------
+                                                          *quickui-opt-menus*
+menus ~
+  Type: `table`
+  Default: `{}`
+
+  List of top-level menu spec tables. See |quickui-menu-definition|.
+
+==============================================================================
+5. DEFAULT KEYBINDINGS                                    *quickui-keybindings*
+
+These bindings are active inside all quickui windows.
+
+  Action            Keys                     Option key
+  ──────────────    ───────────────────────  ───────────
+  Move up           k  <Up>                  `up`
+  Move down         j  <Down>                `down`
+  Execute           <CR>                     `exec`
+  Close             <Esc>  q                 `close`
+  Open submenu      <Tab>  <Right>           `submenu`
+  Back to parent    <Left>                   `back`
+  Menubar: prev     h  <Left>                `menu_prev`
+  Menubar: next     l                        `menu_next`
+  Mouse click       <LeftMouse>              `mouse`
+  Shortcut key      Character after & in name
+
+Global keybindings (e.g. from other plugins) are automatically suppressed
+with `<Nop>` inside quickui buffers. Plugin-specific keymaps above take
+priority via `nowait = true`.
+
+==============================================================================
+6. MENU DEFINITION                                     *quickui-menu-definition*
+
+A top-level menu spec is a table with these fields:
+
+  name ~
+    Type: `string` (required)
+    Display title. Use `&X` to designate a shortcut character (e.g. `"&File"`
+    makes `f`/`F` a shortcut key in the menubar). A leading `@` (or `&@`)
+    sorts the menu to the far right (priority defaults to 10000).
+
+  priority ~
+    Type: `number`
+    Default: `100` (or `10000` for `@`-prefixed names)
+    Menus are displayed left-to-right in ascending priority order.
+
+  conditions ~
+    Type: `nil | boolean | function(opt) → boolean`
+    When `nil` or `true`, the menu is always shown. When `false`, it is
+    hidden. When a function, it is called with `opt` at open time; return
+    `false` to hide the menu.
+
+  items ~
+    Type: `table | function(opt) → table`
+    The item list. May be a static table or a function that returns one.
+    See |quickui-item-fields| for item format.
+
+Example: >lua
+
+  require("quickui").menu_install({
+    name     = "&File",
+    priority = 100,
+    items    = {
+      { name = "&New",  cmd = ":enew<CR>" },
+      { name = "&Save", cmd = ":w<CR>",   rtxt = "Ctrl-S" },
+      { name = "separator" },
+      { name = "&Quit", cmd = ":qa<CR>" },
+    },
+  })
+<
+
+==============================================================================
+7. ITEM FIELDS                                            *quickui-item-fields*
+
+Each entry in an `items` table is a table with the following fields:
+
+  name ~
+    Type: `string`
+    Display label. Special forms:
+      `"&X"`        — the character after `&` becomes the shortcut key.
+      `"%{expr}"`   — Vimscript expression evaluated at open time.
+      `"separator"` — renders a horizontal rule (also `"--"`).
+
+  cmd ~
+    Type: `string | function(opt)`
+    Action to run when the item is selected.
+    Strings are sent via `feedkeys` (termcodes replaced).
+    Functions receive an `opt` table: `{ filetype, cwd, item, selection }`.
+
+  rtxt ~
+    Type: `string`
+    Right-aligned text shown at the far right of the item row (e.g. a
+    shortcut hint). Highlighted with |hl-QuickUIMenuRtxt|.
+
+  items ~
+    Type: `table`
+    When present, this item opens a submenu rather than executing a command.
+    The value is a nested item list in the same format.
+
+  conditions ~
+    Type: `nil | boolean | function(opt) → boolean`
+    Same semantics as the top-level menu `conditions` field.
+
+  ft ~
+    Type: `string`
+    Comma-separated list of filetypes. The item is hidden when the current
+    buffer's filetype does not appear in the list.
+    Example: `ft = "lua,vim"`
+
+  hl ~
+    Type: `string`
+    Highlight group applied to the entire item row (priority 50, below
+    selection highlight).
+
+==============================================================================
+8. API                                                          *quickui-api*
+
+------------------------------------------------------------------------------
+                                                           *quickui.setup()*
+require("quickui").setup({opts})
+
+  Initialize the plugin. Should be called once during startup.
+  `opts` is the configuration table described in |quickui-options|.
+
+------------------------------------------------------------------------------
+                                                    *quickui.menu_install()*
+require("quickui").menu_install({spec})
+
+  Register or replace a top-level menu at runtime. If a menu with the same
+  `name` already exists, it is replaced in-place. The registry is re-sorted
+  by priority after insertion. >lua
+
+    require("quickui").menu_install({
+      name  = "&Tools",
+      items = { ... },
+    })
+<
+
+------------------------------------------------------------------------------
+                                                    *quickui.context_open()*
+require("quickui").context_open({spec}, {opts})
+
+  Open a floating context menu at the cursor position.
+
+  {spec} ~
+    Either a plain item list table, or a table with an `items` field: >lua
+
+      -- plain list
+      require("quickui").context_open({
+        { name = "&Copy",  cmd = '"+y' },
+        { name = "&Paste", cmd = '"+p' },
+      })
+
+      -- items field (supports function for dynamic generation)
+      require("quickui").context_open({
+        items = function(opt)
+          return { { name = "ft: " .. opt.filetype } }
+        end,
+      }, { title = "Context" })
+<
+
+  {opts} ~
+    Optional table:
+      `title`  `string`  Title shown in the window border.
+      `width`  `number`  Minimum window width.
+      `item`   `any`     Caller-supplied context passed into `opt.item`.
+
+------------------------------------------------------------------------------
+                                                     *quickui.listbox_open()*
+require("quickui").listbox_open({items}, {opts})
+
+  Open a centered floating selection window. >lua
+
+    require("quickui").listbox_open({
+      { name = "Option A", cmd = function() print("A") end },
+      { name = "Option B", cmd = function() print("B") end },
+    }, { title = "Choose" })
+<
+
+  {opts} ~
+    Optional table: `title`, `width`, `row`, `col`.
+    When `row`/`col` are omitted the window is centered.
+
+==============================================================================
+9. HIGHLIGHT GROUPS                                       *quickui-highlights*
+
+All groups are defined with `default = true`, so they fall back to the
+linked group unless explicitly overridden.
+
+  *hl-QuickUIMenubar*
+  QuickUIMenubar             Default link: |hl-StatusLine|
+    Menubar background (the non-focusable top strip).
+
+  *hl-QuickUIMenubarSel*
+  QuickUIMenubarSel          Default link: |hl-PmenuSel|
+    Highlighted menubar item (the currently selected title).
+
+  *hl-QuickUIMenubarSeparator*
+  QuickUIMenubarSeparator    Default link: |hl-NonText|
+    Separator character between menubar items.
+
+  *hl-QuickUIMenu*
+  QuickUIMenu                Default link: |hl-Normal|
+    Background of dropdown and popup windows.
+
+  *hl-QuickUIMenuBorder*
+  QuickUIMenuBorder          Default link: |hl-FloatBorder|
+    Border of dropdown and popup windows.
+
+  *hl-QuickUIMenuSel*
+  QuickUIMenuSel             Default link: |hl-PmenuSel|
+    Selected item row inside a dropdown or popup.
+
+  *hl-QuickUIMenuAccent*
+  QuickUIMenuAccent          Default link: |hl-Special|
+    Shortcut character (the letter immediately after `&` in a name).
+
+  *hl-QuickUIMenuRtxt*
+  QuickUIMenuRtxt            Default link: |hl-Special|
+    Right-aligned text column (`rtxt` field).
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:

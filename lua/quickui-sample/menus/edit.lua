@@ -5,7 +5,7 @@ return {
         -- key only: "<C-z>" shown as right-aligned hint
         { name = "&Undo",            cmd = "u",            key = "<C-z>" },
         -- rtxt overrides key display
-        { name = "&Redo",            cmd = "<C-r>",        key = "<C-y>", rtxt = "Ctrl-R" },
+        { name = "&Redo",            cmd = "<C-r>",        key = "<C-r>", rtxt = "Ctrl-R" },
         { name = "separator" },
         { name = "Cu&t",             cmd = '"+d',          key = "<C-x>" },
         { name = "&Copy",            cmd = '"+y',          key = "<C-c>" },

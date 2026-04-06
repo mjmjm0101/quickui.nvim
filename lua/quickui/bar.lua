@@ -2,9 +2,8 @@
 --- plus a focusable dropdown that opens below the selected title.
 --- Supports nested submenus (parent stays visible while submenu is open).
 local M = {}
-local util   = require("quickui.util")
-local panel  = require("quickui.menu_panel")
-local cursor = require("quickui.cursor")
+local util  = require("quickui.util")
+local panel = require("quickui.menu_panel")
 
 local cfg = {
   border             = "single",
@@ -205,8 +204,6 @@ function M.open(registry)
   S.menu_idx = 1
   S.open     = true
 
-  cursor.hide()
-
   if #S.menus == 0 then return end
 
   local buf = vim.api.nvim_create_buf(false, true)
@@ -242,8 +239,6 @@ function M.close()
   end
   S.bar_win, S.bar_buf = nil, nil
   S.open               = false
-
-  cursor.show()
 
   if S.prev_win and vim.api.nvim_win_is_valid(S.prev_win) then
     vim.api.nvim_set_current_win(S.prev_win)

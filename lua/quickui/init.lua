@@ -1,10 +1,9 @@
 local M = {}
 
-local bar    = require("quickui.bar")
-local popup  = require("quickui.popup")
-local panel  = require("quickui.menu_panel")
-local hl     = require("quickui.highlight")
-local cursor = require("quickui.cursor")
+local bar   = require("quickui.bar")
+local popup = require("quickui.popup")
+local panel = require("quickui.menu_panel")
+local hl    = require("quickui.highlight")
 
 -- Registry: list of menus sorted by priority
 local registry = {}
@@ -17,7 +16,6 @@ local registry = {}
 ---   winblend          number|table  Transparency 0-100. number = both, { bar=, menu= } = individual
 ---   highlights        table         Override highlight groups
 ---   suppress_all_keys boolean       Map all keys to <Nop> in plugin buffers to block global keymaps (default: true)
----   hide_cursor       boolean       Hide the cursor while a menu is open (default: true)
 ---   menus             table         List of menu spec tables. Each entry is a module that returns:
 ---                              { name=, priority=, conditions=, items= }
 ---                            title: menu title with & for shortcut
@@ -28,7 +26,6 @@ function M.setup(opts)
   opts = opts or {}
 
   hl.setup(opts.highlights)
-  cursor.setup(opts)
   panel.setup(opts)
   bar.setup(opts)
   popup.setup(opts)

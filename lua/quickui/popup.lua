@@ -1,8 +1,7 @@
 --- Shared floating window used by both context_open() and listbox_open().
 local M = {}
-local util   = require("quickui.util")
-local panel  = require("quickui.menu_panel")
-local cursor = require("quickui.cursor")
+local util  = require("quickui.util")
+local panel = require("quickui.menu_panel")
 
 local cfg = {
   border            = "single",
@@ -27,7 +26,6 @@ function M.open(items, opts)
   if #parsed == 0 then return end
 
   local prev_win = vim.api.nvim_get_current_win()
-  cursor.hide()
 
   local anchor
   if opts.cursor then
@@ -41,7 +39,6 @@ function M.open(items, opts)
   local ctl
   local function restore_all()
     if ctl then ctl.close_silent() end
-    cursor.show()
     if vim.api.nvim_win_is_valid(prev_win) then
       vim.api.nvim_set_current_win(prev_win)
     end

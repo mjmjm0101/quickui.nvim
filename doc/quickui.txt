@@ -193,23 +193,6 @@ suppress_all_keys ~
 <
 
 ------------------------------------------------------------------------------
-                                                     *quickui-opt-hide-cursor*
-hide_cursor ~
-  Type: `boolean`
-  Default: `true`
-
-  When `true`, the cursor is hidden while any quickui menu or popup is open
-  and restored automatically when it closes. A safety autocmd on `BufLeave`
-  and `VimLeavePre` guarantees restoration even if the menu is dismissed
-  abnormally.
-
-  Set to `false` to leave the cursor unchanged at all times. In that case no
-  cursor-related autocmds are registered. >lua
-
-    hide_cursor = false,
-<
-
-------------------------------------------------------------------------------
                                                           *quickui-opt-menus*
 menus ~
   Type: `table`

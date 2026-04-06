@@ -142,10 +142,6 @@ require("quickui").setup({
   -- global keymaps. Set to false to leave global keymaps untouched.
   suppress_all_keys = true,
 
-  -- When true (default), hide the cursor while a menu is open and restore it
-  -- on close. Set to false to leave the cursor as-is.
-  hide_cursor = true,
-
   -- List of top-level menu specs (see Menu Definition below)
   menus = { ... },
 })

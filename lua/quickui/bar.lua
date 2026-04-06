@@ -13,6 +13,7 @@ local cfg = {
   menubar_separator  = "│",
   keymaps            = vim.deepcopy(util.default_keymaps),
   suppress_all_keys  = true,
+  toggle_key         = "<Space>",
 }
 
 local ns_bar = vim.api.nvim_create_namespace("quickui_bar")
@@ -167,6 +168,7 @@ local function open_drop()
     end
     bind(km.menu_prev, function() M.move_menu(-1) end)
     bind(km.menu_next, function() M.move_menu(1)  end)
+    kmap(cfg.toggle_key, M.close)
     local sc_reserved = util.reserved_keys(km, { "up", "down", "exec", "close", "submenu", "menu_prev", "menu_next" })
     for i, m in ipairs(S.menus) do
       local sc = m.name:match("&(%a)")
@@ -263,6 +265,7 @@ function M.setup(opts)
   end
   cfg.keymaps = util.resolve_keymaps(opts)
   if opts.suppress_all_keys ~= nil then cfg.suppress_all_keys = opts.suppress_all_keys end
+  if opts.keymap             ~= nil then cfg.toggle_key        = opts.keymap             end
 end
 
 return M

@@ -212,8 +212,8 @@ These bindings are active inside all quickui windows.
   Execute           <CR>                     `exec`
   Close             <Esc>  q                 `close`
   Open submenu      <Tab>  <Right>           `submenu`
-  Back to parent    <Left>                   `back`
-  Menubar: prev     h  <Left>                `menu_prev`
+  Back to parent    <Left>  <BS>  <S-Tab>     `back`
+  Menubar: prev     h                        `menu_prev`
   Menubar: next     l                        `menu_next`
   Mouse click       <LeftMouse>              `mouse`
   Shortcut (&)      Character after & in name

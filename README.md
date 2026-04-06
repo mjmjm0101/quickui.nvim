@@ -98,8 +98,6 @@ require("quickui").setup({
 })
 ```
 
-Demo GIFs and screenshots will be added later.
-
 ---
 
 ## Configuration Reference

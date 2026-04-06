@@ -66,17 +66,20 @@ require("quickui").setup({
     {
       name  = "&File",
       items = {
-        { name = "&New",  cmd = ":enew<CR>" },
-        { name = "&Open", cmd = ":e " },
+        { name = "&New",   cmd = ":enew<CR>", key = "<C-n>" },
+        { name = "&Open",  cmd = ":e ",       key = "<C-o>" },
+        { name = "&Save",  cmd = ":w<CR>",    key = "<C-s>" },
         { name = "separator" },
-        { name = "&Quit", cmd = ":qa<CR>" },
+        { name = "&Quit",  cmd = ":qa<CR>",   key = "<C-q>", rtxt = "q" },
       },
     },
     {
       name  = "&Edit",
       items = {
-        { name = "&Undo", cmd = "u" },
-        { name = "&Redo", cmd = "<C-r>" },
+        { name = "&Undo",  cmd = "u",      key = "<C-z>" },
+        { name = "&Redo",  cmd = "<C-r>",  key = "<C-y>", rtxt = "Ctrl-R" },
+        { name = "&Copy",  cmd = '"+y',    key = "<C-c>" },
+        { name = "&Paste", cmd = '"+p',    key = "<C-v>" },
       },
     },
   },
@@ -164,7 +167,8 @@ require("quickui").setup({
 | Menubar: previous menu        | `h` / `<Left>`               |
 | Menubar: next menu            | `l`                          |
 | Mouse click                   | `<LeftMouse>`                |
-| Shortcut key                  | Character after `&` in name  |
+| Shortcut key (`&`)            | Character after `&` in name  |
+| Shortcut key (`key`)          | Value of the `key` item field |
 
 ---
 
@@ -191,8 +195,17 @@ Names prefixed with `&@` or `@` default to `priority = 10000` and are sorted to 
 
 ```lua
 items = {
-  -- Basic item
-  { name = "&Save", cmd = ":w<CR>", rtxt = "Ctrl-S" },
+  -- key only: "<C-s>" is shown as the right-aligned hint and triggers the item
+  { name = "&Save",  cmd = ":w<CR>",  key = "<C-s>" },
+
+  -- rtxt overrides key display (key still works as a binding)
+  { name = "&Save As...", cmd = ":saveas ", key = "<C-s>", rtxt = "Ctrl-Shift-S" },
+
+  -- rtxt="" suppresses display; key is still active
+  { name = "&Close", cmd = ":bd<CR>", key = "<C-w>", rtxt = "" },
+
+  -- rtxt only: display hint with no in-menu keybinding
+  { name = "&Redo",  cmd = "<C-r>",   rtxt = "Ctrl-R" },
 
   -- Separator
   { name = "separator" },
@@ -232,7 +245,8 @@ items = {
 |--------------|--------------------|--------------------------------------------------------------------------|
 | `name`       | string             | Display name. `&X` sets the shortcut key. `%{expr}` is evaluated at open time. |
 | `cmd`        | string \| function | Command to run. Strings are fed via `feedkeys`; functions receive `opt`. |
-| `rtxt`       | string             | Right-aligned text (e.g. a shortcut hint).                               |
+| `key`        | string             | Keybinding active while the menu is open (e.g. `"<C-s>"`). Also used as the right-aligned hint text when `rtxt` is not specified. |
+| `rtxt`       | string             | Right-aligned text. Overrides `key` display when specified. Set to `""` to suppress display even if `key` is set. |
 | `items`      | table              | Sub-item list — presence makes this item a submenu trigger.              |
 | `conditions` | bool \| function   | `false` hides the item. Function receives `opt`, return `false` to hide. |
 | `ft`         | string             | Comma-separated filetypes. Item is hidden when the current ft doesn't match. |

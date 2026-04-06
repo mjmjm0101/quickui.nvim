@@ -2,13 +2,16 @@ return {
     name     = "&Edit",
     priority = 200,
     items = {
-        { name = "&Undo",            cmd = "u",       rtxt = "u" },
-        { name = "&Redo",            cmd = "<C-r>",   rtxt = "Ctrl-R" },
+        -- key only: "<C-z>" shown as right-aligned hint
+        { name = "&Undo",            cmd = "u",            key = "<C-z>" },
+        -- rtxt overrides key display
+        { name = "&Redo",            cmd = "<C-r>",        key = "<C-y>", rtxt = "Ctrl-R" },
         { name = "separator" },
-        { name = "Cu&t",             cmd = '"+d',     rtxt = "Ctrl-X" },
-        { name = "&Copy",            cmd = '"+y',     rtxt = "Ctrl-C" },
-        { name = "&Paste",           cmd = '"+p',     rtxt = "Ctrl-V" },
-        { name = "Select &All",      cmd = "ggVG" },
+        { name = "Cu&t",             cmd = '"+d',          key = "<C-x>" },
+        { name = "&Copy",            cmd = '"+y',          key = "<C-c>" },
+        { name = "&Paste",           cmd = '"+p',          key = "<C-v>" },
+        -- rtxt="" suppresses display; <C-a> is still active
+        { name = "Select &All",      cmd = "ggVG",         key = "<C-a>", rtxt = "" },
         { name = "separator" },
         { name = "&Find",            items = {
             { name = "&Search...",          cmd = "/",         rtxt = "/" },

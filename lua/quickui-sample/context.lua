@@ -1,15 +1,17 @@
 --- Context menu sample — showcases submenus, per-item highlights, ft filters,
---- conditions, and right-aligned text.
+--- conditions, key keybindings, and right-aligned text.
 
 return {
     items = function(opt)
         return {
             -- ── LSP ──────────────────────────────────────────────────────────
             { name = "&LSP Actions",     items = {
+                -- key only: "<C-a>" shown as hint and active inside the submenu
                 { name = "&Code Action",      cmd = function() vim.lsp.buf.code_action() end,
-                  rtxt = "ca",  hl = "DiagnosticInfo" },
+                  key = "<C-a>",  hl = "DiagnosticInfo" },
+                -- rtxt overrides key display
                 { name = "&Rename Symbol",    cmd = function() vim.lsp.buf.rename() end,
-                  rtxt = "rn" },
+                  key = "<C-r>",  rtxt = "rn" },
                 { name = "Go to &Definition", cmd = function() vim.lsp.buf.definition() end,
                   rtxt = "gd" },
                 { name = "Find &References",  cmd = function() vim.lsp.buf.references() end,
@@ -21,8 +23,9 @@ return {
             }},
 
             -- ── Format ───────────────────────────────────────────────────────
+            -- key only: "<C-f>" shown as right-aligned hint
             { name = "&Format Buffer",   cmd = function() vim.lsp.buf.format({ async = true }) end,
-              hl = "DiagnosticHint" },
+              key = "<C-f>",  hl = "DiagnosticHint" },
 
             { name = "separator" },
 
@@ -45,7 +48,8 @@ return {
 
             -- ── Edit ─────────────────────────────────────────────────────────
             { name = "&Edit",            items = {
-                { name = "&Copy Line",        cmd = "yy",       rtxt = "yy" },
+                -- rtxt overrides key display
+                { name = "&Copy Line",        cmd = "yy",       key = "<C-c>", rtxt = "yy" },
                 { name = "Copy &All",         cmd = ":%y+<CR>", rtxt = "%y+" },
                 { name = "separator" },
                 { name = "D&uplicate Line",   cmd = "yyp" },
@@ -54,8 +58,10 @@ return {
                 { name = "&Indent",           cmd = ">>",       rtxt = ">>" },
                 { name = "De&dent",           cmd = "<<",       rtxt = "<<" },
             }},
-            { name = "&Yank to Clipboard", cmd = '"+yy', rtxt = '"+y' },
-            { name = "&Paste from Clipboard", cmd = '"+p', rtxt = '"+p' },
+            -- rtxt="" suppresses display; <C-y> is still active
+            { name = "&Yank to Clipboard",    cmd = '"+yy',  key = "<C-y>", rtxt = "" },
+            -- key only: "<C-v>" shown as hint
+            { name = "&Paste from Clipboard", cmd = '"+p',   key = "<C-v>" },
 
             { name = "separator" },
 
@@ -78,12 +84,12 @@ return {
 
             -- ── Danger zone ───────────────────────────────────────────────
             { name = "Danger &Zone",     items = {
-                { name = "Close &Buffer",     cmd = ":bd<CR>",
+                { name = "Close &Buffer",      cmd = ":bd<CR>",
                   hl = "DiagnosticWarn" },
-                { name = "Close &All Buffers",cmd = ":%bd<CR>",
+                { name = "Close &All Buffers", cmd = ":%bd<CR>",
                   hl = "DiagnosticWarn" },
                 { name = "separator" },
-                { name = "Delete &File",      cmd = function()
+                { name = "Delete &File",       cmd = function()
                     local path = vim.fn.expand("%:p")
                     vim.cmd("bd!")
                     vim.fn.delete(path)

@@ -353,6 +353,7 @@ function M.open(items, anchor, cfg, opt, callbacks)
       on_exec        = callbacks.on_exec,
       on_close       = function() child_close = nil end,
       on_mouse_other = callbacks.on_mouse_other,
+      bind_extra     = callbacks.bind_extra,
     }
     local child = M.open(M.parse_items(item.submenu, opt), child_anchor, child_cfg, opt, child_cb)
     child_close = child.close_silent
@@ -382,6 +383,7 @@ function M.open(items, anchor, cfg, opt, callbacks)
       do_close(true)
     end
   end)
+  if callbacks.bind_extra then callbacks.bind_extra(buf) end
   bind(km.mouse, function()
     local mpos = vim.fn.getmousepos()
     if mpos.winid == win then

@@ -79,14 +79,14 @@ border ~
                                                         *quickui-opt-winblend*
 winblend ~
   Type: `number` or `table`
-  Default: `0`
+  Default: `{ bar = 0, menu = 40 }`
 
   Transparency for quickui windows (0 = opaque, 100 = fully transparent).
 
   As a number, the value is applied to both the bar and menu windows.
   As a table, specify individually: >lua
 
-    winblend = { bar = 0, menu = 15 }
+    winblend = { bar = 0, menu = 40 }
 <
 
 ------------------------------------------------------------------------------
@@ -281,7 +281,7 @@ Each entry in an `items` table is a table with the following fields:
     Type: `string | function(opt)`
     Action to run when the item is selected.
     Strings are sent via `feedkeys` (termcodes replaced).
-    Functions receive an `opt` table: `{ filetype, cwd, item, selection }`.
+    Functions receive an `opt` table: `{ filetype, cwd, item }`.
 
   key ~
     Type: `string`

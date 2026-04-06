@@ -133,6 +133,19 @@ local function open_drop()
 
   local km = cfg.keymaps
 
+  -- bar nav keymaps applied to every panel in the hierarchy (dropdown + all submenus)
+  local function bind_bar_nav(buf)
+    local function kmap(key, fn)
+      vim.keymap.set("n", key, fn, { buffer = buf, noremap = true, silent = true, nowait = true })
+    end
+    local function bind(keys, fn)
+      for _, k in ipairs(keys or {}) do kmap(k, fn) end
+    end
+    bind(km.menu_prev, function() M.move_menu(-1) end)
+    bind(km.menu_next, function() M.move_menu(1)  end)
+    kmap(cfg.toggle_key, M.close)
+  end
+
   S.drop_panel = panel.open(items, { row = 1, col = S.menu_cols[S.menu_idx] or 0 }, {
     border            = cfg.border,
     winblend          = cfg.winblend_menu,
@@ -155,20 +168,15 @@ local function open_drop()
       end
     end,
     on_no_submenu = function() M.move_menu(1) end,
+    bind_extra    = bind_bar_nav,
   })
 
-  -- bar-specific keymaps bound directly after panel creation
+  -- shortcut keys bound only to the top-level dropdown (jump directly to a menu by letter)
   local buf = S.drop_panel.buf
   if buf then
     local function kmap(key, fn)
       vim.keymap.set("n", key, fn, { buffer = buf, noremap = true, silent = true, nowait = true })
     end
-    local function bind(keys, fn)
-      for _, k in ipairs(keys or {}) do kmap(k, fn) end
-    end
-    bind(km.menu_prev, function() M.move_menu(-1) end)
-    bind(km.menu_next, function() M.move_menu(1)  end)
-    kmap(cfg.toggle_key, M.close)
     local sc_reserved = util.reserved_keys(km, { "up", "down", "exec", "close", "submenu", "menu_prev", "menu_next" })
     for i, m in ipairs(S.menus) do
       local sc = m.name:match("&(%a)")

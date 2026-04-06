@@ -104,7 +104,8 @@ require("quickui").setup({
   border = "single",
 
   -- Transparency 0-100. number = both bar and menu, table = individual
-  winblend = { bar = 0, menu = 15 },
+  -- Defaults: bar = 0, menu = 40
+  winblend = { bar = 0, menu = 40 },
 
   -- Number of padding spaces on each side of a menubar item (default: 1)
   menubar_padding = 2,
@@ -252,7 +253,7 @@ items = {
 | `ft`         | string             | Comma-separated filetypes. Item is hidden when the current ft doesn't match. |
 | `hl`         | string             | Highlight group applied to the item row.                                 |
 
-The `opt` table passed to functions: `{ filetype, cwd, item, selection }`
+The `opt` table passed to functions: `{ filetype, cwd, item }`
 
 ---
 

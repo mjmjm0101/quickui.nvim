@@ -1,6 +1,6 @@
 # quickui.nvim
 
-Keyboard-friendly TUI-style menus for Neovim (menubar, context, listbox)
+Lightweight, keyboard-friendly TUI-style menus for Neovim (menubar, context, listbox)
 
 - **Menubar** — a non-focusable title strip at the top of the editor with a dropdown that opens below the selected title
 - **Context menus** — floating popups positioned at the cursor (normal and visual mode)
@@ -82,6 +82,8 @@ require("quickui").setup({
   },
 })
 ```
+
+Demo GIFs and screenshots will be added later.
 
 ---
 

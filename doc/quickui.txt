@@ -216,7 +216,8 @@ These bindings are active inside all quickui windows.
   Menubar: prev     h  <Left>                `menu_prev`
   Menubar: next     l                        `menu_next`
   Mouse click       <LeftMouse>              `mouse`
-  Shortcut key      Character after & in name
+  Shortcut (&)      Character after & in name
+  Shortcut (key)    Value of the `key` item field
 
 When `suppress_all_keys` is `true` (the default), global keybindings (e.g.
 from other plugins) are suppressed with `<Nop>` inside quickui buffers.
@@ -282,10 +283,29 @@ Each entry in an `items` table is a table with the following fields:
     Strings are sent via `feedkeys` (termcodes replaced).
     Functions receive an `opt` table: `{ filetype, cwd, item, selection }`.
 
+  key ~
+    Type: `string`
+    A keybinding string (e.g. `"<C-s>"`) that triggers this item while the
+    menu is open. Also serves as the right-aligned hint text when `rtxt` is
+    not specified. >lua
+
+      -- "<C-s>" is shown on the right and triggers Save from the menu
+      { name = "&Save",  cmd = ":w<CR>",  key = "<C-s>" }
+<
+
   rtxt ~
     Type: `string`
-    Right-aligned text shown at the far right of the item row (e.g. a
-    shortcut hint). Highlighted with |hl-QuickUIMenuRtxt|.
+    Right-aligned text shown at the far right of the item row.
+    Highlighted with |hl-QuickUIMenuRtxt|.
+
+    Priority rules when used with `key`:
+      - `rtxt` not set (nil) and `key` set  → `key` string is shown as hint
+      - `rtxt` set to a non-empty string    → `rtxt` is shown (overrides `key`)
+      - `rtxt = ""`                         → nothing is shown, `key` still works >lua
+
+      { name = "&Redo",  cmd = "<C-r>",  key = "<C-y>",  rtxt = "Ctrl-R" }  -- rtxt shown
+      { name = "&Close", cmd = ":bd<CR>",key = "<C-w>",  rtxt = "" }        -- hidden, key works
+<
 
   items ~
     Type: `table`

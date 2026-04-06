@@ -147,11 +147,17 @@ function M.parse_items(raw_items, opt)
     elseif util.item_conditions(raw, opt) and util.ft_match(raw.ft, opt.filetype) then
       local p = util.parse_label(raw.name)
       if not p.separator then
-        p.cmd   = raw.cmd
-        p.right = raw.rtxt
-        p.hl    = raw.hl
-        if not p.shortcut and p.right and p.right ~= "" then
-          p.shortcut = p.right:sub(1, 1):lower()
+        p.cmd = raw.cmd
+        p.key = raw.key
+        p.hl  = raw.hl
+        -- rtxt display priority:
+        --   rtxt explicitly set (non-empty) → show rtxt
+        --   rtxt = ""                        → show nothing (overrides key)
+        --   rtxt nil + key set               → show key as rtxt fallback
+        if raw.rtxt ~= nil then
+          if raw.rtxt ~= "" then p.right = raw.rtxt end
+        elseif raw.key ~= nil then
+          p.right = raw.key
         end
       end
       table.insert(result, p)
@@ -365,12 +371,18 @@ function M.open(items, anchor, cfg, opt, callbacks)
 
   local sc_reserved = util.reserved_keys(km, { "up", "down", "exec", "close", "submenu", "back" })
   for i, item in ipairs(items) do
-    if not item.separator and item.shortcut then
-      local sc    = item.shortcut
-      local sc_up = sc:upper()
-      local function do_exec() idx = i; hl(); exec() end
-      if not sc_reserved[sc]                    then kmap(sc,    do_exec) end
-      if sc_up ~= sc and not sc_reserved[sc_up] then kmap(sc_up, do_exec) end
+    if not item.separator then
+      if item.shortcut then
+        local sc    = item.shortcut
+        local sc_up = sc:upper()
+        local function do_exec() idx = i; hl(); exec() end
+        if not sc_reserved[sc]                    then kmap(sc,    do_exec) end
+        if sc_up ~= sc and not sc_reserved[sc_up] then kmap(sc_up, do_exec) end
+      end
+      if item.key then
+        local function do_exec_key() idx = i; hl(); exec() end
+        kmap(item.key, do_exec_key)
+      end
     end
   end
 

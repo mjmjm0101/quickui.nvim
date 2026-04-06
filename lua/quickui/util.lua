@@ -125,7 +125,7 @@ end
 
 --- Execute a command: string → vim.cmd, function → call with opt
 ---@param cmd string|function
----@param opt table|nil  Context passed to function commands (selection, filetype, cwd, item)
+---@param opt table|nil  Context passed to function commands (filetype, cwd, item)
 function M.exec(cmd, opt)
   if type(cmd) == "function" then
     cmd(opt)

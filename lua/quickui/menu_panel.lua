@@ -7,6 +7,27 @@ local mcfg = {
   submenu_icon = "›",
 }
 
+-- winblend使用時のカーソル非表示管理（ネストしたパネルに対応）
+local cursor_hidden_count = 0
+local saved_guicursor     = nil
+
+local function hide_cursor()
+  if cursor_hidden_count == 0 then
+    saved_guicursor = vim.o.guicursor
+    vim.api.nvim_set_hl(0, "QuickUICursorHidden", { blend = 100, nocombine = true })
+    vim.o.guicursor = "a:QuickUICursorHidden"
+  end
+  cursor_hidden_count = cursor_hidden_count + 1
+end
+
+local function show_cursor()
+  cursor_hidden_count = math.max(0, cursor_hidden_count - 1)
+  if cursor_hidden_count == 0 and saved_guicursor then
+    vim.o.guicursor = saved_guicursor
+    saved_guicursor = nil
+  end
+end
+
 function M.setup(opts)
   if opts.submenu_icon ~= nil then mcfg.submenu_icon = opts.submenu_icon end
 end
@@ -236,6 +257,9 @@ function M.open(items, anchor, cfg, opt, callbacks)
   vim.wo[win].winblend     = cfg.winblend or 0
   vim.wo[win].scrolloff    = 1
 
+  local cursor_was_hidden = (cfg.winblend or 0) > 0
+  if cursor_was_hidden then hide_cursor() end
+
   local idx = 1
   for i, item in ipairs(items) do
     if not item.separator then idx = i; break end
@@ -275,6 +299,7 @@ function M.open(items, anchor, cfg, opt, callbacks)
     pcall(vim.api.nvim_del_augroup_by_id, au_group)
     if vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_close(win, true) end
     if vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_delete(buf, { force = true }) end
+    if cursor_was_hidden then show_cursor() end
     if anchor.parent_win and vim.api.nvim_win_is_valid(anchor.parent_win) then
       vim.api.nvim_set_current_win(anchor.parent_win)
     end

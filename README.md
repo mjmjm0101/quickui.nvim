@@ -82,14 +82,14 @@ require("quickui").setup({
         { name = "&Open",  cmd = ":e ",       key = "<C-o>" },
         { name = "&Save",  cmd = ":w<CR>",    key = "<C-s>" },
         { name = "separator" },
-        { name = "&Quit",  cmd = ":qa<CR>",   key = "<C-q>", rtxt = "q" },
+        { name = "&Quit",  cmd = ":qa<CR>",   key = "<C-q>", rtxt = "Ctrl-q" },
       },
     },
     {
       name  = "&Edit",
       items = {
         { name = "&Undo",  cmd = "u",      key = "<C-z>" },
-        { name = "&Redo",  cmd = "<C-r>",  key = "<C-y>", rtxt = "Ctrl-R" },
+        { name = "&Redo",  cmd = "<C-r>",  key = "<C-y>", rtxt = "Ctrl-y" },
         { name = "&Copy",  cmd = '"+y',    key = "<C-c>" },
         { name = "&Paste", cmd = '"+p',    key = "<C-v>" },
       },
@@ -210,7 +210,7 @@ items = {
   { name = "&Save",  cmd = ":w<CR>",  key = "<C-s>" },
 
   -- rtxt overrides key display (key still works as a binding)
-  { name = "&Save As...", cmd = ":saveas ", key = "<C-s>", rtxt = "Ctrl-Shift-S" },
+  { name = "&Save As...", cmd = ":saveas ", key = "<C-shift-s>", rtxt = "Ctrl-Shift-S" },
 
   -- rtxt="" suppresses display; key is still active
   { name = "&Close", cmd = ":bd<CR>", key = "<C-w>", rtxt = "" },

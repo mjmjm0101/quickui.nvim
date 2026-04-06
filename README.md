@@ -35,7 +35,24 @@ Context menu at cursor position:
 
 ![Context menu demo](https://github.com/user-attachments/assets/05e99d4f-959b-4ec5-ad62-4de233f86a2a)
 
+## 🧠 Why quickui.nvim?
 
+Modern Neovim setups often include dozens of plugins,
+but their commands and keybindings are fragmented and hard to manage.
+
+quickui.nvim provides a structured UI — not for recalling or searching,
+but for organizing your tools by meaning.
+
+- Not for recalling — for organizing
+- Not for searching — for structure
+
+Do you have plugins that seemed useful when you installed them,
+but ended up unused because you couldn’t remember how to use them?
+
+quickui.nvim brings those features back by turning them into something you can navigate and use.
+
+It complements the traditional “memorize commands” workflow
+by adding a new approach: organizing capabilities.
 
 ## Installation
 

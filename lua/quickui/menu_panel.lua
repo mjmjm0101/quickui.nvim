@@ -396,7 +396,7 @@ function M.open(items, anchor, cfg, opt, callbacks)
     end
   end)
 
-  local sc_reserved = util.reserved_keys(km, { "up", "down", "exec", "close", "submenu", "back" })
+  local sc_reserved = util.reserved_keys(km, { "up", "down", "exec", "close", "submenu", "back", "menu_prev", "menu_next" })
   for i, item in ipairs(items) do
     if not item.separator then
       if item.shortcut then

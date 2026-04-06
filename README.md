@@ -20,6 +20,18 @@ This plugin provides similar functionality to [skywind3000/vim-quickui](https://
 
 ---
 
+
+## Demo
+
+### Menubar
+
+![Menubar demo](https://github.com/user-attachments/assets/89e5229e-65c6-4f5b-978f-0d37ec69e0bb)
+
+### Context Menu
+![Context menu demo](https://github.com/user-attachments/assets/05e99d4f-959b-4ec5-ad62-4de233f86a2a)
+
+
+
 ## Installation
 
 ### [lazy.nvim](https://github.com/folke/lazy.nvim)

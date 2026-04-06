@@ -1,8 +1,10 @@
 local M = {}
 
-local bar     = require("quickui.bar")
-local popup   = require("quickui.popup")
-local hl      = require("quickui.highlight")
+local bar    = require("quickui.bar")
+local popup  = require("quickui.popup")
+local panel  = require("quickui.menu_panel")
+local hl     = require("quickui.highlight")
+local cursor = require("quickui.cursor")
 
 -- Registry: list of menus sorted by priority
 local registry = {}
@@ -10,11 +12,13 @@ local registry = {}
 --- Setup quickui.nvim.
 ---
 ---@param opts table
----   keymap     string        Key to toggle the menubar (default: "<Space>")
----   border     string        Border style: "none"|"single"|"double"|"dotted"|"dashed"
----   winblend   number|table  Transparency 0-100. number = both, { bar=, menu= } = individual
----   highlights table         Override highlight groups
----   menus      table         List of menu spec tables. Each entry is a module that returns:
+---   keymap            string        Key to toggle the menubar (default: "<Space>")
+---   border            string        Border style: "none"|"single"|"double"|"dotted"|"dashed"
+---   winblend          number|table  Transparency 0-100. number = both, { bar=, menu= } = individual
+---   highlights        table         Override highlight groups
+---   suppress_all_keys boolean       Map all keys to <Nop> in plugin buffers to block global keymaps (default: true)
+---   hide_cursor       boolean       Hide the cursor while a menu is open (default: true)
+---   menus             table         List of menu spec tables. Each entry is a module that returns:
 ---                              { name=, priority=, conditions=, items= }
 ---                            title: menu title with & for shortcut
 ---                            priority: display order (lower = further left, default 100)
@@ -24,6 +28,8 @@ function M.setup(opts)
   opts = opts or {}
 
   hl.setup(opts.highlights)
+  cursor.setup(opts)
+  panel.setup(opts)
   bar.setup(opts)
   popup.setup(opts)
 
@@ -48,7 +54,8 @@ function M.menu_install(spec)
 
   if not priority then
     -- @-prefix means "sort to end" (e.g. "&@Help")
-    priority = (name:match("^&@") or name:match("^@")) and 10000 or 100
+    local is_tail = name:match("^&@") or name:match("^@")
+    priority = is_tail and 10000 or 100
   end
 
   -- Remove any existing menu with the same name
@@ -78,16 +85,28 @@ end
 ---                    item: caller-supplied context (e.g. snacks picker item)
 function M.context_open(spec, opts)
   opts = opts or {}
-  local opt   = { item = opts.item, filetype = vim.bo.filetype, cwd = vim.fn.getcwd() }
+
+  local opt = {
+    item     = opts.item,
+    filetype = vim.bo.filetype,
+    cwd      = vim.fn.getcwd(),
+  }
+
   local items
   if type(spec) == "table" and spec.items ~= nil then
     -- New format: { items = table|function(opt) }
-    items = type(spec.items) == "function" and spec.items(opt) or spec.items
+    if type(spec.items) == "function" then
+      items = spec.items(opt)
+    else
+      items = spec.items
+    end
   else
     -- Plain array (backward compat)
     items = spec
   end
-  popup.open(items, vim.tbl_extend("force", opts, { cursor = true }))
+
+  local popup_opts = vim.tbl_extend("force", opts, { cursor = true })
+  popup.open(items, popup_opts)
 end
 
 --- Open a listbox (centered floating window with optional title).

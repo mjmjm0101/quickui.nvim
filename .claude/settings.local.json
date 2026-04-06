@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xxd)",
+      "Bash(luacheck lua/quickui/menu_panel.lua lua/quickui/bar.lua lua/quickui/popup.lua)"
+    ]
+  }
+}

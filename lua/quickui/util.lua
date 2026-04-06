@@ -30,41 +30,6 @@ function M.parse_label(label)
   }
 end
 
---- Get item name (label)
-function M.item_label(item)
-  return item.name or "--"
-end
-
---- Get command from item
-function M.item_cmd(item)
-  return item.cmd
-end
-
---- Get right-aligned text from item
-function M.item_rtxt(item)
-  return item.rtxt
-end
-
---- Get per-item highlight group
-function M.item_hl(item)
-  return item.hl
-end
-
---- Get filetype filter from item (comma-separated string or nil)
-function M.item_ft(item)
-  return item.ft
-end
-
---- Check if item is a submenu item (has items field)
-function M.is_submenu_item(item)
-  return item.items ~= nil
-end
-
---- Get submenu items from item
-function M.item_submenu(item)
-  return item.items
-end
-
 --- Check item-level conditions. conditions can be: nil/true → show, false → hide, function(opt) → call.
 function M.item_conditions(item, opt)
   local c = item.conditions
@@ -74,11 +39,10 @@ function M.item_conditions(item, opt)
   return true
 end
 
---- Check if a filetype filter matches the current buffer's filetype.
+--- Check if a filetype filter matches the given filetype.
 --- nil means always match.
-function M.ft_match(ft)
+function M.ft_match(ft, cur)
   if not ft then return true end
-  local cur = vim.bo.filetype
   for _, f in ipairs(vim.split(ft, ",")) do
     if vim.trim(f) == cur then return true end
   end
@@ -113,6 +77,17 @@ M.default_keymaps = {
   menu_next = { "l" },                 -- bar: move to next menu
   mouse     = { "<LeftMouse>" },
 }
+
+--- Merge user keymaps with defaults.
+---@param opts table  { keymaps?, disable_default_keymaps? }
+---@return table
+function M.resolve_keymaps(opts)
+  local user_km = opts.keymaps or {}
+  if opts.disable_default_keymaps then
+    return user_km
+  end
+  return vim.tbl_extend("force", vim.deepcopy(M.default_keymaps), user_km)
+end
 
 --- Suppress all global keymaps in a buffer by mapping every common key to <Nop>.
 --- Call this BEFORE setting plugin-specific keymaps so they will override.

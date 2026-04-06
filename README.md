@@ -134,8 +134,8 @@ require("quickui").setup({
     exec      = { "<CR>" },
     close     = { "<Esc>", "q" },
     submenu   = { "<Tab>", "<Right>" },  -- open submenu
-    back      = { "<Left>" },            -- close submenu and return to parent
-    menu_prev = { "h", "<Left>" },       -- menubar: move to previous menu
+    back      = { "<Left>", "<BS>", "<S-Tab>" }, -- close submenu and return to parent
+    menu_prev = { "h" },                 -- menubar: move to previous menu
     menu_next = { "l" },                 -- menubar: move to next menu
     mouse     = { "<LeftMouse>" },
   },
@@ -163,8 +163,8 @@ require("quickui").setup({
 | Execute                       | `<CR>`                       |
 | Close                         | `<Esc>` / `q`                |
 | Open submenu                  | `<Tab>` / `<Right>`          |
-| Close submenu / back to parent| `<Left>`                     |
-| Menubar: previous menu        | `h` / `<Left>`               |
+| Close submenu / back to parent| `<Left>` / `<BS>` / `<S-Tab>` |
+| Menubar: previous menu        | `h`                          |
 | Menubar: next menu            | `l`                          |
 | Mouse click                   | `<LeftMouse>`                |
 | Shortcut key (`&`)            | Character after `&` in name  |

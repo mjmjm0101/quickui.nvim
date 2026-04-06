@@ -72,8 +72,8 @@ M.default_keymaps = {
   exec      = { "<CR>" },
   close     = { "<Esc>", "q" },
   submenu   = { "<Tab>", "<Right>" },  -- open submenu (popup / submenu)
-  back      = { "<Left>" },            -- close submenu and return to parent
-  menu_prev = { "h", "<Left>" },       -- bar: move to previous menu
+  back      = { "<Left>", "<BS>", "<S-Tab>" }, -- close submenu and return to parent
+  menu_prev = { "h" },                 -- bar: move to previous menu
   menu_next = { "l" },                 -- bar: move to next menu
   mouse     = { "<LeftMouse>" },
 }

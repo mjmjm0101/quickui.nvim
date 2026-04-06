@@ -155,7 +155,7 @@ function M.parse_items(raw_items, opt)
         --   rtxt = ""                        → show nothing (overrides key)
         --   rtxt nil + key set               → show key as rtxt fallback
         if raw.rtxt ~= nil then
-          if raw.rtxt ~= "" then p.right = raw.rtxt end
+          if raw.rtxt ~= "" then p.right = util.parse_label(raw.rtxt).display end
         elseif raw.key ~= nil then
           p.right = raw.key
         end

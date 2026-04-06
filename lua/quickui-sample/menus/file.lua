@@ -14,12 +14,12 @@ return {
         -- key only: "<C-s>" shown as right-aligned hint
         { name = "&Save",            cmd = ":w<CR>",       key = "<C-s>" },
         -- rtxt overrides key display; key still triggers the item
-        { name = "Save &As...",      cmd = ":saveas ",     key = "<C-s>", rtxt = "Ctrl-Shift-S" },
+        { name = "Save &As...",      cmd = ":saveas ",     key = "<C-S-s>", rtxt = "Ctrl-Shift-S" },
         { name = "Save A&ll",        cmd = ":wa<CR>" },
         { name = "separator" },
         -- rtxt="" suppresses display; <C-w> is still active
         { name = "&Close",           cmd = ":bd<CR>",      key = "<C-w>", rtxt = "" },
         -- rtxt overrides key display
-        { name = "&Quit",            cmd = ":qa<CR>",      key = "<C-q>", rtxt = "q" },
+        { name = "&Quit",            cmd = ":qa<CR>",      key = "<C-q>", rtxt = "Ctrl-Q" },
     },
 }

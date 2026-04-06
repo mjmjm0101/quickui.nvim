@@ -25,9 +25,14 @@ This plugin provides similar functionality to [skywind3000/vim-quickui](https://
 
 ### Menubar
 
+Menubar with nested submenus:
+
 ![Menubar demo](https://github.com/user-attachments/assets/89e5229e-65c6-4f5b-978f-0d37ec69e0bb)
 
 ### Context Menu
+
+Context menu at cursor position:
+
 ![Context menu demo](https://github.com/user-attachments/assets/05e99d4f-959b-4ec5-ad62-4de233f86a2a)
 
 
@@ -69,6 +74,7 @@ lua require("quickui").setup({})
 
 ## Quick Start
 
+
 ```lua
 require("quickui").setup({
   keymap = "<Space>",  -- toggle the menubar
@@ -96,6 +102,12 @@ require("quickui").setup({
     },
   },
 })
+```
+
+or Sample Settings
+
+```lua
+require("quickui-sample")
 ```
 
 ---

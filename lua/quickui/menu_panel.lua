@@ -124,6 +124,9 @@ local function calc_pos(anchor, width, nlines, has_border)
     return "cursor", 1, 0, math.min(nlines, max_h)
 
   elseif anchor.placement == "right" then
+    if not vim.api.nvim_win_is_valid(anchor.parent_win) then
+      return "editor", 0, 0, math.min(nlines, math.max(1, vim.o.lines - bh * 2))
+    end
     local ppos = vim.api.nvim_win_get_position(anchor.parent_win)
     local pw   = vim.api.nvim_win_get_width(anchor.parent_win)
     local row  = anchor.row or 0
@@ -319,7 +322,9 @@ function M.open(items, anchor, cfg, opt, callbacks)
       if next > n then next = 1 end
       tries = tries + 1
     end
-    idx = next
+    if not items[next] or not items[next].separator then
+      idx = next
+    end
     hl()
   end
 

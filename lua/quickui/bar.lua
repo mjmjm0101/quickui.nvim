@@ -159,6 +159,7 @@ local function open_drop()
     on_mouse_other = function(winid)
       if winid == S.bar_win then
         local mpos = vim.fn.getmousepos()
+        if not mpos.wincol then return end
         local c = mpos.wincol - 1
         for i = #S.menu_cols, 1, -1 do
           if c >= S.menu_cols[i] then S.menu_idx = i; M.move_menu(0); return end

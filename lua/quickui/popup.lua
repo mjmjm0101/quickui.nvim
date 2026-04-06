@@ -5,7 +5,7 @@ local panel = require("quickui.menu_panel")
 
 local cfg = {
   border            = "single",
-  winblend          = 0,
+  winblend          = 40,
   keymaps           = vim.deepcopy(util.default_keymaps),
   suppress_all_keys = true,
 }

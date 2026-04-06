@@ -269,7 +269,7 @@ items = {
 | `name`       | string             | Display name. `&X` sets the shortcut key. `%{expr}` is evaluated at open time. |
 | `cmd`        | string \| function | Command to run. Strings are fed via `feedkeys`; functions receive `opt`. |
 | `key`        | string             | Keybinding active while the menu is open (e.g. `"<C-s>"`). Also used as the right-aligned hint text when `rtxt` is not specified. |
-| `rtxt`       | string             | Right-aligned text. Overrides `key` display when specified. Set to `""` to suppress display even if `key` is set. |
+| `rtxt`       | string             | Right-aligned text. Overrides `key` display when specified. Set to `""` to suppress display even if `key` is set. Supports `%{expr}` evaluation (same as `name`). |
 | `items`      | table              | Sub-item list — presence makes this item a submenu trigger.              |
 | `conditions` | bool \| function   | `false` hides the item. Function receives `opt`, return `false` to hide. |
 | `ft`         | string             | Comma-separated filetypes. Item is hidden when the current ft doesn't match. |

@@ -8,7 +8,9 @@ A lightweight menubar and context menu plugin for Neovim.
 - Nested submenus (multi-level)
 - Per-item conditions (`conditions`) and filetype filters (`ft`)
 - Fully configurable keybindings
-- Global keybindings are automatically suppressed inside quickui buffers
+- Global keybindings are suppressed inside quickui buffers by default (configurable via `suppress_all_keys`)
+
+This plugin provides similar functionality to [skywind3000/vim-quickui](https://github.com/skywind3000/vim-quickui) and [nvzone/menu](https://github.com/nvzone/menu). Both were a great source of inspiration, and I'm grateful to their authors.
 
 ---
 
@@ -92,6 +94,8 @@ require("quickui").setup({
   keymap = "<Space>",
 
   -- Border style: "none" | "single" | "double" | "rounded" | "dotted" | "dashed"
+  -- Note: "none" hides border characters but still reserves their cell width
+  -- to prevent layout shifts. Zero-thickness borders are not supported.
   border = "single",
 
   -- Transparency 0-100. number = both bar and menu, table = individual
@@ -102,6 +106,9 @@ require("quickui").setup({
 
   -- Separator character between menubar items. "" to disable (default: "│")
   menubar_separator = "│",
+
+  -- Icon displayed at the right edge of a submenu item (default: "›")
+  submenu_icon = "›",
 
   -- Highlight group overrides
   highlights = {
@@ -130,6 +137,14 @@ require("quickui").setup({
 
   -- If true, start from an empty keymap set (only user-defined keys are active)
   disable_default_keymaps = false,
+
+  -- When true (default), map all keys to <Nop> in plugin buffers to block
+  -- global keymaps. Set to false to leave global keymaps untouched.
+  suppress_all_keys = true,
+
+  -- When true (default), hide the cursor while a menu is open and restore it
+  -- on close. Set to false to leave the cursor as-is.
+  hide_cursor = true,
 
   -- List of top-level menu specs (see Menu Definition below)
   menus = { ... },

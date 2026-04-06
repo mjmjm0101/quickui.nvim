@@ -27,7 +27,7 @@ Features:
   - Nested submenus (multi-level)
   - Per-item conditions and filetype filters
   - Fully configurable keybindings
-  - Global keybindings suppressed inside quickui buffers automatically
+  - Global keybindings suppressed inside quickui buffers by default (configurable)
 
 ==============================================================================
 2. REQUIREMENTS                                           *quickui-requirements*
@@ -71,6 +71,10 @@ border ~
   `"dotted"` and `"dashed"` are custom styles provided by this plugin.
   All other values are passed directly to `nvim_open_win`.
 
+  Note on `"none"`: Even when set to `"none"`, the border cell width is
+  preserved internally to prevent layout shifts. A completely zero-thickness
+  border (no reserved space at all) is not supported by design.
+
 ------------------------------------------------------------------------------
                                                         *quickui-opt-winblend*
 winblend ~
@@ -101,6 +105,19 @@ menubar_separator ~
   Default: `"│"`
 
   Character inserted between menubar items. Set to `""` to disable.
+
+------------------------------------------------------------------------------
+                                                   *quickui-opt-submenu-icon*
+submenu_icon ~
+  Type: `string`
+  Default: `"›"`
+
+  Character displayed at the right edge of any item that opens a submenu.
+  Change this if your terminal or font does not render the default glyph
+  correctly. >lua
+
+    submenu_icon = ">",
+<
 
 ------------------------------------------------------------------------------
                                                       *quickui-opt-highlights*
@@ -159,6 +176,40 @@ disable_default_keymaps ~
 <
 
 ------------------------------------------------------------------------------
+                                               *quickui-opt-suppress-all-keys*
+suppress_all_keys ~
+  Type: `boolean`
+  Default: `true`
+
+  When `true`, all printable ASCII keys and common special keys are mapped to
+  `<Nop>` in quickui buffers before plugin-specific keymaps are applied. This
+  prevents global keymaps (e.g. from other plugins) from firing accidentally
+  while a menu is open.
+
+  Set to `false` to leave global keymaps untouched. In that case only the
+  keys explicitly defined in `keymaps` will be active inside quickui buffers. >lua
+
+    suppress_all_keys = false,
+<
+
+------------------------------------------------------------------------------
+                                                     *quickui-opt-hide-cursor*
+hide_cursor ~
+  Type: `boolean`
+  Default: `true`
+
+  When `true`, the cursor is hidden while any quickui menu or popup is open
+  and restored automatically when it closes. A safety autocmd on `BufLeave`
+  and `VimLeavePre` guarantees restoration even if the menu is dismissed
+  abnormally.
+
+  Set to `false` to leave the cursor unchanged at all times. In that case no
+  cursor-related autocmds are registered. >lua
+
+    hide_cursor = false,
+<
+
+------------------------------------------------------------------------------
                                                           *quickui-opt-menus*
 menus ~
   Type: `table`
@@ -184,9 +235,10 @@ These bindings are active inside all quickui windows.
   Mouse click       <LeftMouse>              `mouse`
   Shortcut key      Character after & in name
 
-Global keybindings (e.g. from other plugins) are automatically suppressed
-with `<Nop>` inside quickui buffers. Plugin-specific keymaps above take
-priority via `nowait = true`.
+When `suppress_all_keys` is `true` (the default), global keybindings (e.g.
+from other plugins) are suppressed with `<Nop>` inside quickui buffers.
+Plugin-specific keymaps above take priority via `nowait = true`.
+Set `suppress_all_keys = false` in |quickui-setup| to disable this behavior.
 
 ==============================================================================
 6. MENU DEFINITION                                     *quickui-menu-definition*

@@ -7,7 +7,7 @@ local mcfg = {
   submenu_icon = "›",
 }
 
--- winblend使用時のカーソル非表示管理（ネストしたパネルに対応）
+-- Cursor visibility management when winblend is active (supports nested panels)
 local cursor_hidden_count = 0
 local saved_guicursor     = nil
 
@@ -267,10 +267,15 @@ function M.open(items, anchor, cfg, opt, callbacks)
   local cursor_was_hidden = (cfg.winblend or 0) > 0
   if cursor_was_hidden then hide_cursor() end
 
-  local idx = 1
+  local nav_indices = {}
+  local nav_pos     = {}
   for i, item in ipairs(items) do
-    if not item.separator then idx = i; break end
+    if not item.separator then
+      nav_pos[i] = #nav_indices + 1
+      table.insert(nav_indices, i)
+    end
   end
+  local idx = nav_indices[1] or 1
 
   local child_close = nil
   local closed      = false
@@ -314,20 +319,10 @@ function M.open(items, anchor, cfg, opt, callbacks)
 
   local function move(dir)
     if child_close then child_close(); child_close = nil end
-    local n     = #items
-    local next  = idx + dir
-    if next < 1 then next = n end
-    if next > n then next = 1 end
-    local tries = 0
-    while items[next] and items[next].separator and tries < n do
-      next = next + dir
-      if next < 1 then next = n end
-      if next > n then next = 1 end
-      tries = tries + 1
-    end
-    if not items[next] or not items[next].separator then
-      idx = next
-    end
+    local n = #nav_indices
+    if n == 0 then return end
+    local pos = nav_pos[idx] or 1
+    idx = nav_indices[((pos - 1 + dir) % n) + 1]
     hl()
   end
 

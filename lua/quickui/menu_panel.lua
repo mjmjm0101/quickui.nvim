@@ -37,11 +37,15 @@ end
 -- Returns lines, width, and rtxt_hl: array indexed by item position.
 -- rtxt_hl[i] = { col, end_col } for right-text highlight, or nil.
 local function build_lines(items, min_w)
-  local max_w = min_w or 10
-  for _, item in ipairs(items) do
+  local max_w  = min_w or 10
+  local widths = {}
+  for i, item in ipairs(items) do
     if not item.separator then
-      local w = vim.fn.strdisplaywidth(item.display) + 2
-      if item.right then w = w + vim.fn.strdisplaywidth(item.right) + 2 end
+      local dw = vim.fn.strdisplaywidth(item.display)
+      local rw = item.right and vim.fn.strdisplaywidth(item.right) or 0
+      widths[i] = { dw = dw, rw = rw }
+      local w = dw + 2
+      if item.right then w = w + rw + 2 end
       if w > max_w then max_w = w end
     end
   end
@@ -54,7 +58,8 @@ local function build_lines(items, min_w)
     elseif item.right then
       local l   = " " .. item.display
       local r   = item.right .. " "
-      local pad = max_w - vim.fn.strdisplaywidth(l) - vim.fn.strdisplaywidth(r)
+      local w   = widths[i]
+      local pad = max_w - (w.dw + 1) - (w.rw + 1)
       if pad < 1 then pad = 1 end
       if not item.submenu then
         local col = #l + pad
@@ -63,7 +68,7 @@ local function build_lines(items, min_w)
       table.insert(lines, l .. string.rep(" ", pad) .. r)
     else
       local l   = " " .. item.display
-      local pad = max_w - vim.fn.strdisplaywidth(l)
+      local pad = max_w - (widths[i].dw + 1)
       if pad < 0 then pad = 0 end
       table.insert(lines, l .. string.rep(" ", pad))
     end
@@ -73,13 +78,12 @@ end
 
 -- ── highlight helpers ─────────────────────────────────────────────────────────
 
-local function apply_item_hl(buf, ns, items)
+local function apply_item_hl(buf, ns, items, lines)
   vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
   for i, item in ipairs(items) do
     if not item.separator and item.hl then
-      local line = vim.api.nvim_buf_get_lines(buf, i - 1, i, false)[1] or ""
       vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 0, {
-        end_col  = #line,
+        end_col  = #lines[i],
         hl_group = item.hl,
         priority = 50,
       })
@@ -275,15 +279,15 @@ function M.open(items, anchor, cfg, opt, callbacks)
   local ns_sel      = vim.api.nvim_create_namespace("quickui_ps_" .. tostring(buf))
   local au_group    = vim.api.nvim_create_augroup("quickui_panel_" .. tostring(buf), { clear = true })
 
+  apply_item_hl(buf, ns_item, items, lines)
+  apply_accent_hl(buf, ns_acc, items, rtxt_hl)
+
   local function hl()
     vim.api.nvim_buf_clear_namespace(buf, ns_sel, 0, -1)
-    apply_item_hl(buf, ns_item, items)
     local item = items[idx]
     if item and not item.separator then
-      local r    = idx - 1
-      local line = vim.api.nvim_buf_get_lines(buf, r, r + 1, false)[1] or ""
-      vim.api.nvim_buf_set_extmark(buf, ns_sel, r, 0, {
-        end_col  = #line,
+      vim.api.nvim_buf_set_extmark(buf, ns_sel, idx - 1, 0, {
+        end_col  = #lines[idx],
         hl_group = "QuickUIMenuSel",
         priority = 100,
       })
@@ -291,7 +295,6 @@ function M.open(items, anchor, cfg, opt, callbacks)
         vim.api.nvim_win_set_cursor(win, { idx, 0 })
       end
     end
-    apply_accent_hl(buf, ns_acc, items, rtxt_hl)
   end
   hl()
 

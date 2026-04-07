@@ -16,12 +16,11 @@ CONTENTS                                                      *quickui-contents*
 ==============================================================================
 1. INTRODUCTION                                           *quickui-introduction*
 
-quickui.nvim provides three UI components:
+quickui.nvim provides two UI components:
 
   - Menubar: a non-focusable strip at the top of the editor with a dropdown
     that opens below the selected title.
   - Context menus: floating popups positioned at the cursor (normal/visual).
-  - Listbox: a centered floating selection UI.
 
 Features:
   - Nested submenus (multi-level)
@@ -379,22 +378,6 @@ require("quickui").context_open({spec}, {opts})
       `title`  `string`  Title shown in the window border.
       `width`  `number`  Minimum window width.
       `item`   `any`     Caller-supplied context passed into `opt.item`.
-
-------------------------------------------------------------------------------
-                                                     *quickui.listbox_open()*
-require("quickui").listbox_open({items}, {opts})
-
-  Open a centered floating selection window. >lua
-
-    require("quickui").listbox_open({
-      { name = "Option A", cmd = function() print("A") end },
-      { name = "Option B", cmd = function() print("B") end },
-    }, { title = "Choose" })
-<
-
-  {opts} ~
-    Optional table: `title`, `width`, `row`, `col`.
-    When `row`/`col` are omitted the window is centered.
 
 ==============================================================================
 9. HIGHLIGHT GROUPS                                       *quickui-highlights*

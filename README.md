@@ -1,10 +1,9 @@
 # quickui.nvim
 
-Lightweight, keyboard-friendly TUI-style menus for Neovim (menubar, context, listbox)
+Lightweight, keyboard-friendly TUI-style menus for Neovim (menubar + context menus)
 
 - **Menubar** — a non-focusable title strip at the top of the editor with a dropdown that opens below the selected title
 - **Context menus** — floating popups positioned at the cursor (normal and visual mode)
-- **Listbox** — a centered floating selection UI
 - Nested submenus (multi-level)
 - Per-item conditions (`conditions`) and filetype filters (`ft`)
 - Fully configurable keybindings
@@ -332,17 +331,6 @@ require("quickui").context_open({
     }
   end,
 }, { title = "Context" })
-```
-
-### `require("quickui").listbox_open(items, opts)`
-
-Open a centered floating selection UI.
-
-```lua
-require("quickui").listbox_open({
-  { name = "Option A", cmd = function() print("A") end },
-  { name = "Option B", cmd = function() print("B") end },
-}, { title = "Choose" })
 ```
 
 ---

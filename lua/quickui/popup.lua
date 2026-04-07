@@ -1,4 +1,4 @@
---- Shared floating window used by both context_open() and listbox_open().
+--- Floating window used by context_open().
 local M = {}
 local util  = require("quickui.util")
 local panel = require("quickui.menu_panel")
@@ -15,8 +15,8 @@ local cfg = {
 --- Open a popup window.
 ---@param items  table   List of items ({ name=, cmd= } etc.)
 ---@param opts   table   { title?, width?, cursor?, row?, col? }
----   cursor = true  → position just below the cursor (for context menus)
----   row/col        → explicit editor-relative position (for listbox)
+---   cursor = true  → position just below the cursor
+---   row/col        → explicit editor-relative position
 ---   title          → shown in the border
 function M.open(items, opts)
   opts = opts or {}

@@ -106,12 +106,4 @@ function M.context_open(spec, opts)
   popup.open(items, popup_opts)
 end
 
---- Open a listbox (centered floating window with optional title).
----
----@param items table  Same format as menu items
----@param opts  table  Optional: { title?, width?, row?, col? }
-function M.listbox_open(items, opts)
-  popup.open(items, opts or {})
-end
-
 return M

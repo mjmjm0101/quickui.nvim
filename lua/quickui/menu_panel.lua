@@ -7,6 +7,10 @@ local mcfg = {
   submenu_icon = "›",
 }
 
+local ns_item = vim.api.nvim_create_namespace("quickui_item_hl")
+local ns_acc  = vim.api.nvim_create_namespace("quickui_accent_hl")
+local ns_sel  = vim.api.nvim_create_namespace("quickui_sel_hl")
+
 -- Cursor visibility management when winblend is active (supports nested panels)
 local cursor_hidden_count = 0
 local saved_guicursor     = nil
@@ -279,9 +283,6 @@ function M.open(items, anchor, cfg, opt, callbacks)
 
   local child_close = nil
   local closed      = false
-  local ns_item     = vim.api.nvim_create_namespace("quickui_pi_" .. tostring(buf))
-  local ns_acc      = vim.api.nvim_create_namespace("quickui_pa_" .. tostring(buf))
-  local ns_sel      = vim.api.nvim_create_namespace("quickui_ps_" .. tostring(buf))
   local au_group    = vim.api.nvim_create_augroup("quickui_panel_" .. tostring(buf), { clear = true })
 
   apply_item_hl(buf, ns_item, items, lines)

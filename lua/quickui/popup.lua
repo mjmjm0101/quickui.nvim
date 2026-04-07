@@ -1,4 +1,5 @@
---- Floating window used by context_open().
+--- Internal floating window renderer used by context_normal / context_visual.
+--- Not part of the public API.
 local M = {}
 local util  = require("quickui.util")
 local panel = require("quickui.menu_panel")
@@ -12,16 +13,14 @@ local cfg = {
 
 -- ── main open ─────────────────────────────────────────────────────────────────
 
---- Open a popup window.
----@param items  table   List of items ({ name=, cmd= } etc.)
----@param opts   table   { title?, width?, cursor?, row?, col? }
----   cursor = true  → position just below the cursor
----   row/col        → explicit editor-relative position
----   title          → shown in the border
-function M.open(items, opts)
+---@param items       table         List of parsed items
+---@param opts        table         Display options: { cursor?, row?, col? }
+---@param opt         table|nil     Context passed to cmd functions (filetype, cwd, …)
+---@param after_close function|nil  Called after the popup closes and focus is restored
+function M.open(items, opts, opt, after_close)
   opts = opts or {}
+  opt  = opt  or { filetype = vim.bo.filetype, cwd = vim.fn.getcwd() }
 
-  local opt    = { filetype = vim.bo.filetype, cwd = vim.fn.getcwd() }
   local parsed = panel.parse_items(items, opt)
   if #parsed == 0 then return end
 
@@ -34,14 +33,13 @@ function M.open(items, opts)
     anchor = { row = opts.row, col = opts.col }
   end
 
-  local title_w = opts.title and (vim.fn.strdisplaywidth(opts.title) + 4) or 0
-
   local ctl
   local function restore_all()
     if ctl then ctl.close_silent() end
     if vim.api.nvim_win_is_valid(prev_win) then
       vim.api.nvim_set_current_win(prev_win)
     end
+    if after_close then after_close() end
   end
 
   ctl = panel.open(parsed, anchor, {
@@ -50,9 +48,7 @@ function M.open(items, opts)
     zindex            = 250,
     keymaps           = cfg.keymaps,
     suppress_all_keys = cfg.suppress_all_keys,
-    title             = opts.title,
     close_on_leave    = true,
-    min_width         = math.max(opts.width or 0, title_w),
   }, opt, {
     on_exec  = restore_all,
     on_close = restore_all,

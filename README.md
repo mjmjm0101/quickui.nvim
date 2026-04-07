@@ -126,6 +126,11 @@ or Sample Settings
 require("quickui-sample")
 ```
 
+The sample includes:
+- `context/normal.lua` — normal-mode context menu (LSP, diagnostics, edit, filetype-specific items)
+- `context/visual.lua` — visual-mode context menu (case conversion, clipboard, indent, sort, LSP range)
+- `context/snacks_explorer.lua` — context menu for [snacks.nvim](https://github.com/folke/snacks.nvim) explorer (open, new, rename, delete, copy path); see the file header for setup instructions
+
 ---
 
 ## Configuration Reference
@@ -291,7 +296,14 @@ items = {
 | `ft`         | string             | Comma-separated filetypes. Item is hidden when the current ft doesn't match. |
 | `hl`         | string             | Highlight group applied to the item row.                                 |
 
-The `opt` table passed to functions: `{ filetype, cwd, item }`
+The `opt` table passed to `cmd` and `conditions` functions:
+
+| Key         | Type       | Always present | Description                                                          |
+|-------------|------------|----------------|----------------------------------------------------------------------|
+| `filetype`  | string     | ✓              | `vim.bo.filetype` at the time the menu was opened                    |
+| `cwd`       | string     | ✓              | `vim.fn.getcwd()` at the time the menu was opened                    |
+| `selection` | table\|nil | context_visual only | Visual selection: `{ text, lines, mode }`                       |
+| _…data_     | any        | when provided  | All fields from the `data` argument of `context_normal` / `context_visual` |
 
 ---
 
@@ -312,25 +324,50 @@ require("quickui").menu_install({
 })
 ```
 
-### `require("quickui").context_open(spec, opts)`
+### `require("quickui").context_normal(spec, data)`
 
-Open a context menu at the cursor position.
+Open a context menu at the cursor position (normal mode).
 
 ```lua
 -- Plain item list
-require("quickui").context_open({
+require("quickui").context_normal({
   { name = "Copy",  cmd = '"+y' },
   { name = "Paste", cmd = '"+p' },
 })
 
--- items field (supports a function for dynamic generation)
-require("quickui").context_open({
+-- items as a function (dynamic generation)
+require("quickui").context_normal({
   items = function(opt)
     return {
       { name = "Filetype: " .. opt.filetype, cmd = "" },
     }
   end,
-}, { title = "Context" })
+})
+
+-- Pass arbitrary data through to cmd functions
+require("quickui").context_normal(ctx, { target = some_item })
+-- cmd = function(opt)  →  opt.target == some_item
+```
+
+### `require("quickui").context_visual(spec, data)`
+
+Open a context menu at the cursor position (visual mode).
+The visual selection is highlighted while the menu is open.
+`opt.selection` is set automatically.
+
+```lua
+require("quickui").context_visual({
+  items = function(opt)
+    return {
+      { name = "Selection: " .. opt.selection.text, cmd = "" },
+      { name = "&Uppercase", cmd = function(opt)
+          -- opt.selection.text  — selected text (joined with \n)
+          -- opt.selection.lines — table of selected lines
+          -- opt.selection.mode  — "v" | "V" | "\22" (block)
+        end },
+    }
+  end,
+})
 ```
 
 ---
@@ -339,31 +376,34 @@ require("quickui").context_open({
 
 ```lua
 -- lua/plugins/quickui.lua
-return {
-  "mjmjm0101/quickui.nvim",
-  lazy = false,
-  config = function()
-    require("quickui").setup({ ... })
+local quickui = require("quickui")
 
-    -- Normal mode: Tab opens a context menu
-    vim.keymap.set("n", "<Tab>", function()
-      require("quickui").context_open({
-        { name = "&Format",      cmd = function() vim.lsp.buf.format() end },
-        { name = "&Code Action", cmd = function() vim.lsp.buf.code_action() end },
-        { name = "separator" },
-        { name = "&Yank All",    cmd = ":%y+<CR>" },
-      })
-    end, { noremap = true, silent = true })
-
-    -- Visual mode: Tab opens a context menu
-    vim.keymap.set("v", "<Tab>", function()
-      require("quickui").context_open({
-        { name = "&Uppercase", cmd = "gU" },
-        { name = "&Lowercase", cmd = "gu" },
-      })
-    end, { noremap = true, silent = true })
+local ctx = {
+  items = function(opt)
+    return {
+      { name = "&Format",      cmd = function() vim.lsp.buf.format() end },
+      { name = "&Code Action", cmd = function() vim.lsp.buf.code_action() end },
+      { name = "separator" },
+      { name = "&Yank All",    cmd = ":%y+<CR>" },
+      -- shown only from context_visual
+      -- shown only from context_visual (gv re-enters the last visual selection)
+      { name = "&Uppercase",   cmd = "gvU",
+        conditions = function(opt) return opt.selection ~= nil end },
+      { name = "&Lowercase",   cmd = "gvu",
+        conditions = function(opt) return opt.selection ~= nil end },
+    }
   end,
 }
+
+-- Normal mode
+vim.keymap.set("n", "<Tab>", function()
+  quickui.context_normal(ctx)
+end, { noremap = true, silent = true })
+
+-- Visual mode (selection is highlighted; opt.selection is set automatically)
+vim.keymap.set("x", "<Tab>", function()
+  quickui.context_visual(ctx)
+end, { noremap = true, silent = true })
 ```
 
 ---
@@ -380,6 +420,7 @@ return {
 | `QuickUIMenuSel`           | `PmenuSel`       | Selected item row                    |
 | `QuickUIMenuAccent`        | `Special`        | Shortcut character (after `&`)       |
 | `QuickUIMenuRtxt`          | `Special`        | Right-aligned text (`rtxt` field)    |
+| `QuickUIVisualSel`         | `Visual`         | Visual selection overlay (context_visual) |
 
 ---
 

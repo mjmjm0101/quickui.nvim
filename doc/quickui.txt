@@ -280,7 +280,7 @@ Each entry in an `items` table is a table with the following fields:
     Type: `string | function(opt)`
     Action to run when the item is selected.
     Strings are sent via `feedkeys` (termcodes replaced).
-    Functions receive an `opt` table: `{ filetype, cwd, item }`.
+    Functions receive an `opt` table. See |quickui-opt-table|.
 
   key ~
     Type: `string`
@@ -326,6 +326,19 @@ Each entry in an `items` table is a table with the following fields:
     Highlight group applied to the entire item row (priority 50, below
     selection highlight).
 
+------------------------------------------------------------------------------
+                                                            *quickui-opt-table*
+opt table ~
+
+  The table passed to `cmd` and `conditions` functions.
+
+  filetype    `string`      `vim.bo.filetype` at the time the menu was opened.
+  cwd         `string`      `vim.fn.getcwd()` at the time the menu was opened.
+  selection   `table|nil`   Visual selection info. Set only by |quickui.context_visual()|.
+                            Fields: `text` (string), `lines` (table), `mode` ("v"|"V"|"\22").
+  ...data     any           All fields from the `data` argument passed to
+                            |quickui.context_normal()| or |quickui.context_visual()|.
+
 ==============================================================================
 8. API                                                          *quickui-api*
 
@@ -351,33 +364,56 @@ require("quickui").menu_install({spec})
 <
 
 ------------------------------------------------------------------------------
-                                                    *quickui.context_open()*
-require("quickui").context_open({spec}, {opts})
+                                                  *quickui.context_normal()*
+require("quickui").context_normal({spec}, {data})
 
-  Open a floating context menu at the cursor position.
+  Open a floating context menu at the cursor position (normal mode).
 
   {spec} ~
     Either a plain item list table, or a table with an `items` field: >lua
 
       -- plain list
-      require("quickui").context_open({
+      require("quickui").context_normal({
         { name = "&Copy",  cmd = '"+y' },
         { name = "&Paste", cmd = '"+p' },
       })
 
       -- items field (supports function for dynamic generation)
-      require("quickui").context_open({
+      require("quickui").context_normal({
         items = function(opt)
           return { { name = "ft: " .. opt.filetype } }
         end,
-      }, { title = "Context" })
+      })
 <
 
-  {opts} ~
-    Optional table:
-      `title`  `string`  Title shown in the window border.
-      `width`  `number`  Minimum window width.
-      `item`   `any`     Caller-supplied context passed into `opt.item`.
+  {data} ~
+    Optional table. All fields are merged into the `opt` table received by
+    `cmd` and `conditions` functions. See |quickui-opt-table|.
+
+------------------------------------------------------------------------------
+                                                  *quickui.context_visual()*
+require("quickui").context_visual({spec}, {data})
+
+  Open a floating context menu at the cursor position (visual mode).
+  The visual selection is highlighted while the menu is open.
+  `opt.selection` is populated automatically. See |quickui-opt-table|.
+
+  {spec} ~
+    Same format as |quickui.context_normal()|. >lua
+
+      require("quickui").context_visual({
+        items = function(opt)
+          return {
+            { name = "Selected: " .. opt.selection.text, cmd = "" },
+            { name = "&Yank", cmd = "gvy" },
+          }
+        end,
+      })
+<
+
+  {data} ~
+    Optional table. Merged into `opt` alongside `selection`.
+    See |quickui-opt-table|.
 
 ==============================================================================
 9. HIGHLIGHT GROUPS                                       *quickui-highlights*
@@ -416,6 +452,11 @@ linked group unless explicitly overridden.
   *hl-QuickUIMenuRtxt*
   QuickUIMenuRtxt            Default link: |hl-Special|
     Right-aligned text column (`rtxt` field).
+
+  *hl-QuickUIVisualSel*
+  QuickUIVisualSel           Default link: |hl-Visual|
+    Visual selection overlay applied to the source buffer while a
+    |quickui.context_visual()| menu is open.
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:

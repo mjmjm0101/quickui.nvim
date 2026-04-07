@@ -1,8 +1,9 @@
---- Context menu sample — showcases submenus, per-item highlights, ft filters,
---- conditions, key keybindings, and right-aligned text.
+--- Normal-mode context menu sample.
+--- Showcases submenus, per-item highlights, ft filters, conditions,
+--- key keybindings, and right-aligned text.
 
 return {
-    items = function(opt)
+    items = function(_)
         return {
             -- ── LSP ──────────────────────────────────────────────────────────
             { name = "&LSP Actions",     items = {
@@ -65,14 +66,14 @@ return {
 
             { name = "separator" },
 
-            -- ── Filetype-specific (Lua only) ──────────────────────────────
+            -- ── Filetype-specific (Lua only) ──────────────────────────────────
             { name = "Run &Lua File",    cmd = ":source %<CR>",
               ft = "lua",  hl = "DiagnosticHint" },
             { name = "Check &Syntax",    cmd = ":luafile %<CR>",
               ft = "lua" },
 
-            -- ── Filetype-specific (Markdown only) ────────────────────────
-            { name = "&Preview Markdown",cmd = function()
+            -- ── Filetype-specific (Markdown only) ────────────────────────────
+            { name = "&Preview Markdown", cmd = function()
                 vim.cmd("!open %")
               end,
               ft = "markdown",  hl = "DiagnosticInfo" },
@@ -82,7 +83,7 @@ return {
                   return opt.filetype == "lua" or opt.filetype == "markdown"
               end },
 
-            -- ── Danger zone ───────────────────────────────────────────────
+            -- ── Danger zone ───────────────────────────────────────────────────
             { name = "Danger &Zone",     items = {
                 { name = "Close &Buffer",      cmd = ":bd<CR>",
                   hl = "DiagnosticWarn" },

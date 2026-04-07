@@ -40,6 +40,9 @@ function M.setup(overrides)
     overrides.rtxt = { fg = overrides.rtxt }
   end
 
+  -- Visual selection overlay used by context_visual()
+  vim.api.nvim_set_hl(0, "QuickUIVisualSel", { default = true, link = "Visual" })
+
   for key, name in pairs(hl_names) do
     local spec = vim.tbl_extend("force", { default = true }, defaults[key], overrides[key] or {})
     -- If user provides color attrs, remove the default link so it doesn't conflict

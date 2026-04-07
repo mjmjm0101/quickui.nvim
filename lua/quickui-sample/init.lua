@@ -36,8 +36,15 @@ quickui.setup({
     },
 })
 
--- Context menu (Tab in normal mode)
-local ctx = require("quickui-sample.context")
+-- Context menus (Tab in normal / visual mode)
+local ctx_normal = require("quickui-sample.context.normal")
+local ctx_visual = require("quickui-sample.context.visual")
+
 vim.keymap.set("n", "<Tab>", function()
-    quickui.context_open(ctx)
+    quickui.context_normal(ctx_normal)
 end, { noremap = true, silent = true, desc = "Open context menu" })
+vim.keymap.set("x", "<Tab>", function()
+    quickui.context_visual(ctx_visual)
+end, { noremap = true, silent = true, desc = "Open context menu (visual)" })
+
+-- Snacks explorer context menu (see context/snacks_explorer.lua for setup instructions)

@@ -18,7 +18,7 @@ local registry = {}
 ---   suppress_all_keys boolean       Map all keys to <Nop> in plugin buffers to block global keymaps (default: true)
 ---   menus             table         List of menu spec tables. Each entry is a module that returns:
 ---                              { name=, priority=, conditions=, items= }
----                            title: menu title with & for shortcut
+---                            name: menu title with & for shortcut
 ---                            priority: display order (lower = further left, default 100)
 ---                            conditions: function(opt)→bool or nil (always show)
 ---                            items: table or function(opt)→table
@@ -44,7 +44,7 @@ end
 
 --- Register a top-level menu from a spec table.
 ---
----@param spec table  { title=, priority=, conditions=, items= }
+---@param spec table  { name=, priority=, conditions=, items= }
 function M.menu_install(spec)
   local name     = spec.name
   local priority = spec.priority
@@ -75,19 +75,15 @@ end
 
 -- ── helpers ───────────────────────────────────────────────────────────────────
 
---- Resolve items from a spec (plain array or { items = table|function }).
+--- Resolve items from a spec { items = table|function }.
 ---@param spec table
 ---@param opt  table
 ---@return table
 local function resolve_items(spec, opt)
-  if type(spec) == "table" and spec.items ~= nil then
-    if type(spec.items) == "function" then
-      return spec.items(opt)
-    else
-      return spec.items
-    end
+  if type(spec.items) == "function" then
+    return spec.items(opt)
   end
-  return spec  -- plain array
+  return spec.items
 end
 
 -- ── visual selection highlight ────────────────────────────────────────────────
@@ -215,7 +211,7 @@ end
 --- `data` is merged into `opt`, which is passed to both `cmd` and `conditions`
 --- functions.  Built-in keys added automatically: `filetype`, `cwd`.
 ---
----@param spec  table         { items = table|function(opt) } or plain items array
+---@param spec  table         { items = table|function(opt) }
 ---@param data  table|nil     Arbitrary context; merged into opt for cmd and conditions
 function M.context_normal(spec, data)
   local opt = vim.tbl_extend("force",
@@ -230,7 +226,7 @@ end
 --- `data` is merged into `opt`, which is passed to both `cmd` and `conditions`
 --- functions.  `opt.selection` is set automatically: { mode, lines, text }.
 ---
----@param spec  table         { items = table|function(opt) } or plain items array
+---@param spec  table         { items = table|function(opt) }
 ---@param data  table|nil     Arbitrary context passed through to cmd functions
 function M.context_visual(spec, data)
   local src_buf = vim.api.nvim_get_current_buf()

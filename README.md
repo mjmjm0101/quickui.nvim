@@ -8,6 +8,7 @@ Lightweight, keyboard-friendly TUI-style menus for Neovim (menubar + context men
 - Per-item conditions (`conditions`) and filetype filters (`ft`)
 - Fully configurable keybindings
 - Global keybindings are suppressed inside quickui buffers by default (configurable via `suppress_all_keys`)
+- [Fuzzy finder integration (Telescope, fzf-lua, snacks, mini.pick)](#fuzzy-finder-integration)
 
 This plugin provides similar functionality to [skywind3000/vim-quickui](https://github.com/skywind3000/vim-quickui) and [nvzone/menu](https://github.com/nvzone/menu). Both were a great source of inspiration, and I'm grateful to their authors.
 
@@ -426,6 +427,22 @@ end, { noremap = true, silent = true })
 | `QuickUIVisualSel`         | `Visual`         | Visual selection overlay (context_visual) |
 
 ---
+
+## Fuzzy Finder Integration
+
+quickui.nvim menus can be exposed as searchable data,
+making it possible to use fuzzy finders as an entry point to your structured UI.
+
+Instead of relying only on remembering commands or guessing search terms,
+you can search within your own curated structure.
+
+Search results reflect your menu hierarchy and naming,
+so you can find actions based on how you think about them — not how plugins name them.
+
+- [telescope-quickui.nvim](https://github.com/mjmjm0101/telescope-quickui.nvim)
+- [fzf-lua-quickui.nvim](https://github.com/mjmjm0101/fzf-lua-quickui.nvim)
+- [snacks-picker-quickui.nvim](https://github.com/mjmjm0101/snacks-picker-quickui.nvim)
+- [mini-pick-quickui.nvim](https://github.com/mjmjm0101/mini-pick-quickui.nvim)
 
 ## License
 

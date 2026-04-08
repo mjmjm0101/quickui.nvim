@@ -141,7 +141,7 @@ local function collect_entries(items, opt, type_name, path, entries)
       for _, v in ipairs(path) do label[#label + 1] = v end
       label[#label + 1] = name
 
-      local rtxt = item.rtxt
+      local rtxt = item.rtxt and eval_dynamic(item.rtxt) or nil
       if rtxt == "" then rtxt = nil end
 
       entries[#entries + 1] = {

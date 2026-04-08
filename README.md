@@ -48,10 +48,13 @@ But for infrequent actions, what matters more is having a structure you can navi
 Do you have plugins that seemed useful when you installed them,
 but ended up unused because you couldn’t remember how to use them?
 
-quickui.nvim helps bring those features back by making them navigable.
+quickui.nvim makes those features accessible again by turning them into something you can navigate.
 
 It complements the traditional “memorize commands” workflow
 by adding a new approach: organizing capabilities.
+
+As a result, your menus can act as a portable UI layer — staying consistent
+even when switching between setups like LazyVim, NvChad, or your own config.
 
 ## Installation
 

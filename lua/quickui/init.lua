@@ -73,6 +73,121 @@ function M.menu_install(spec)
   end)
 end
 
+-- ── get_entries ───────────────────────────────────────────────────────────────
+
+--- Strip & shortcut markers and leading @ priority markers from a name.
+---@param name string
+---@return string
+local function strip_markers(name)
+  local result = name:gsub("&", "")
+  result = result:gsub("^@", "")
+  return result
+end
+
+--- Evaluate %{expr} patterns in a name string.
+---@param name string
+---@return string
+local function eval_dynamic(name)
+  return (name:gsub("%%{([^}]+)}", function(expr)
+    local ok, result = pcall(vim.fn.eval, expr)
+    return ok and tostring(result) or expr
+  end))
+end
+
+--- Check whether a conditions value passes for the given opt.
+---@param conditions boolean|function|nil
+---@param opt table
+---@return boolean
+local function conditions_pass(conditions, opt)
+  if conditions == nil then return true end
+  if type(conditions) == "boolean" then return conditions end
+  return conditions(opt) ~= false
+end
+
+--- Check whether an item's ft constraint matches opt.filetype.
+---@param ft string|nil
+---@param filetype string
+---@return boolean
+local function ft_pass(ft, filetype)
+  if not ft then return true end
+  for _, f in ipairs(vim.split(ft, ",")) do
+    if vim.trim(f) == filetype then return true end
+  end
+  return false
+end
+
+--- Recursively collect leaf entries from an items list.
+---@param items    table
+---@param opt      table
+---@param type_name string
+---@param path     string[]   accumulated label segments above this level
+---@param entries  table[]    output accumulator
+local function collect_entries(items, opt, type_name, path, entries)
+  for _, item in ipairs(items) do
+    if item.name == "separator" then goto continue end
+    if not conditions_pass(item.conditions, opt) then goto continue end
+    if not ft_pass(item.ft, opt.filetype) then goto continue end
+
+    local name = strip_markers(eval_dynamic(item.name or ""))
+
+    if item.items then
+      local sub = type(item.items) == "function" and item.items(opt) or item.items
+      local new_path = {}
+      for _, v in ipairs(path) do new_path[#new_path + 1] = v end
+      new_path[#new_path + 1] = name
+      collect_entries(sub, opt, type_name, new_path, entries)
+    elseif item.cmd then
+      local label = {}
+      for _, v in ipairs(path) do label[#label + 1] = v end
+      label[#label + 1] = name
+
+      local rtxt = item.rtxt
+      if rtxt == "" then rtxt = nil end
+
+      entries[#entries + 1] = {
+        type  = type_name,
+        label = label,
+        rtxt  = rtxt,
+        cmd   = item.cmd,
+      }
+    end
+
+    ::continue::
+  end
+end
+
+--- Export all currently visible menubar entries as a flat list.
+---
+--- Evaluates conditions, ft constraints, and %{expr} names against the
+--- current Neovim context.  Returns only executable leaf items.
+---
+---@return table[]  List of { type, label, rtxt, cmd }
+---   type  string     Top-level menu name (e.g. "File")
+---   label string[]   Hierarchy segments below type (e.g. { "Recent", "foo.lua" })
+---   rtxt  string|nil Right-aligned hint text, or nil
+---   cmd   string|function  Command to execute
+function M.get_entries()
+  local opt = {
+    filetype = vim.bo.filetype,
+    cwd      = vim.fn.getcwd(),
+  }
+
+  local entries = {}
+
+  for _, menu in ipairs(registry) do
+    if not conditions_pass(menu.conditions, opt) then goto continue end
+
+    local type_name = strip_markers(eval_dynamic(menu.name))
+    local items = type(menu.items) == "function" and menu.items(opt) or menu.items
+
+    collect_entries(items, opt, type_name, {}, entries)
+
+    ::continue::
+  end
+
+  return entries
+end
+
 -- ── helpers ───────────────────────────────────────────────────────────────────
 
 --- Resolve items from a spec { items = table|function }.

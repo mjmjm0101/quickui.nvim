@@ -16,11 +16,16 @@ function M.parse_label(label)
   end)
 
   -- Find & position before removing it
-  local amp_pos  = left:find("&%a")
-  local shortcut = amp_pos and left:sub(amp_pos + 1, amp_pos + 1):lower() or nil
-  local shortcut_col = amp_pos and vim.fn.strdisplaywidth(left:sub(1, amp_pos - 1)) or nil
-
-  local display = left:gsub("&", "")
+  local amp_pos = left:find("&%a")
+  local display, shortcut, shortcut_col
+  if amp_pos then
+    local prefix = left:sub(1, amp_pos - 1)
+    shortcut     = left:sub(amp_pos + 1, amp_pos + 1):lower()
+    shortcut_col = vim.fn.strdisplaywidth(prefix)
+    display      = prefix .. left:sub(amp_pos + 1)
+  else
+    display = left
+  end
 
   return {
     separator    = false,

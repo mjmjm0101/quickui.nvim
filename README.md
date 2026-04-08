@@ -42,13 +42,13 @@ but their commands and keybindings are fragmented and hard to manage.
 quickui.nvim provides a structured UI — not for recalling or searching,
 but for organizing your tools by meaning.
 
-- Not for recalling — for organizing
-- Not for searching — for structure
+Search-based workflows work well when you already remember what exists.
+But for infrequent actions, what matters more is having a structure you can navigate.
 
 Do you have plugins that seemed useful when you installed them,
 but ended up unused because you couldn’t remember how to use them?
 
-quickui.nvim brings those features back by turning them into something you can navigate and use.
+quickui.nvim helps bring those features back by making them navigable.
 
 It complements the traditional “memorize commands” workflow
 by adding a new approach: organizing capabilities.

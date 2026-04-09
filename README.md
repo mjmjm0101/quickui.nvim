@@ -1,5 +1,8 @@
 # quickui.nvim
 
+> It provides a UI — but the goal isn't UI.
+> It's about managing the cognitive load of your own Neovim setup, so nothing gets lost.
+
 Lightweight, keyboard-friendly TUI-style menus for Neovim (menubar + context menus)
 
 - **Menubar** — a non-focusable title strip at the top of the editor with a dropdown that opens below the selected title

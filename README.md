@@ -127,7 +127,7 @@ require("quickui").setup({
 })
 ```
 
-or Sample Settings
+Or try the sample
 
 ```lua
 require("quickui-sample")
@@ -137,6 +137,10 @@ The sample includes:
 - `context/normal.lua` — normal-mode context menu (LSP, diagnostics, edit, filetype-specific items)
 - `context/visual.lua` — visual-mode context menu (case conversion, clipboard, indent, sort, LSP range)
 - `context/snacks_explorer.lua` — context menu for [snacks.nvim](https://github.com/folke/snacks.nvim) explorer (open, new, rename, delete, copy path); see the file header for setup instructions
+
+
+> The sample is only a starting point.  
+> quickui.nvim becomes truly useful when you organize your own setup in your own structure — not someone else's.
 
 ---
 

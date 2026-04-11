@@ -18,8 +18,8 @@ CONTENTS                                                      *quickui-contents*
 
 quickui.nvim provides two UI components:
 
-  - Menubar: a non-focusable strip at the top of the editor with a dropdown
-    that opens below the selected title.
+  - Menubar: a title strip at the top of the editor with a dropdown that
+    opens below the selected title.
   - Context menus: floating popups positioned at the cursor (normal/visual).
 
 Features:
@@ -106,6 +106,24 @@ menubar_separator ~
   Character inserted between menubar items. Set to `""` to disable.
 
 ------------------------------------------------------------------------------
+                                          *quickui-opt-menubar-indicator-left*
+menubar_indicator_left ~
+  Type: `string`
+  Default: `"<"`
+
+  Character shown at the left edge of the menubar when there are hidden menus
+  scrolled off to the left.
+
+------------------------------------------------------------------------------
+                                         *quickui-opt-menubar-indicator-right*
+menubar_indicator_right ~
+  Type: `string`
+  Default: `">"`
+
+  Character shown at the right edge of the menubar when there are hidden menus
+  scrolled off to the right.
+
+------------------------------------------------------------------------------
                                                    *quickui-opt-submenu-icon*
 submenu_icon ~
   Type: `string`
@@ -129,13 +147,15 @@ highlights ~
   All other keys accept a table compatible with |nvim_set_hl()|. >lua
 
     highlights = {
-      accent      = "#89b4fa",
-      rtxt        = "#a6e3a1",
-      menu        = { bg = "#1e1e2e", fg = "#cdd6f4" },
-      menu_sel    = { bg = "#4974aa", fg = "#cdd6f4" },
-      menu_border = { fg = "#89b4fa" },
-      menubar     = { bg = "#181825", fg = "#cdd6f4" },
-      menubar_sel = { bg = "#313244", fg = "#89b4fa" },
+      accent              = "#89b4fa",
+      rtxt                = "#a6e3a1",
+      menu                = { bg = "#1e1e2e", fg = "#cdd6f4" },
+      menu_sel            = { bg = "#4974aa", fg = "#cdd6f4" },
+      menu_border         = { fg = "#89b4fa" },
+      menubar             = { bg = "#181825", fg = "#cdd6f4" },
+      menubar_sel         = { bg = "#313244", fg = "#89b4fa" },
+      menubar_separator   = { fg = "#585b70", bg = "#181825" },
+      menubar_indicator   = { fg = "#f38ba8", bold = true },
     },
 <
 
@@ -150,7 +170,8 @@ keymaps ~
   actions you specify are changed. >lua
 
     keymaps = {
-      close = { "<Esc>", "q", "<C-c>" },
+      close    = { "<Esc>", "q", "<C-c>" },
+      nav_prev = { "<Left>" },
     }
 <
 
@@ -169,7 +190,7 @@ disable_default_keymaps ~
     keymaps = {
       up    = { "k" },
       down  = { "j" },
-      exec  = { "<CR>" },
+      exec  = { "<CR>" },       -- execute item (opens submenu if item has one)
       close = { "<Esc>" },
     },
 <
@@ -210,10 +231,12 @@ These bindings are active inside all quickui windows.
   Move down         j  <Down>                `down`
   Execute           <CR>                     `exec`
   Close             <Esc>  q                 `close`
-  Open submenu      <Tab>  <Right>           `submenu`
-  Back to parent    <Left>  <BS>  <S-Tab>     `back`
+  Open submenu      <Tab>                    `submenu`
+  Back to parent    <BS>  <S-Tab>            `back`
   Menubar: prev     h                        `menu_prev`
   Menubar: next     l                        `menu_next`
+  Close sub/prev    <Left>                   `nav_prev`
+  Open sub/next     <Right>                  `nav_next`
   Mouse click       <LeftMouse>              `mouse`
   Shortcut (&)      Character after & in name
   Shortcut (key)    Value of the `key` item field
@@ -423,7 +446,7 @@ linked group unless explicitly overridden.
 
   *hl-QuickUIMenubar*
   QuickUIMenubar             Default link: |hl-StatusLine|
-    Menubar background (the non-focusable top strip).
+    Menubar background (the top strip).
 
   *hl-QuickUIMenubarSel*
   QuickUIMenubarSel          Default link: |hl-PmenuSel|
@@ -432,6 +455,11 @@ linked group unless explicitly overridden.
   *hl-QuickUIMenubarSeparator*
   QuickUIMenubarSeparator    Default link: |hl-NonText|
     Separator character between menubar items.
+
+  *hl-QuickUIMenubarIndicator*
+  QuickUIMenubarIndicator    Default link: |hl-WarningMsg|
+    Scroll indicator shown at the left or right edge of the menubar when
+    menus are hidden off-screen.
 
   *hl-QuickUIMenu*
   QuickUIMenu                Default link: |hl-Normal|

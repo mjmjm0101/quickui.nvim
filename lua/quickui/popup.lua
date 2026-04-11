@@ -22,7 +22,10 @@ function M.open(items, opts, opt, after_close)
   opt  = opt  or { filetype = vim.bo.filetype, cwd = vim.fn.getcwd() }
 
   local parsed = panel.parse_items(items, opt)
-  if #parsed == 0 then return end
+  if #parsed == 0 then
+    vim.notify("quickui: no items to display", vim.log.levels.WARN)
+    return
+  end
 
   local prev_win = vim.api.nvim_get_current_win()
 

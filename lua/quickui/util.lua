@@ -21,7 +21,7 @@ function M.parse_label(label)
   if amp_pos then
     local prefix = left:sub(1, amp_pos - 1)
     shortcut     = left:sub(amp_pos + 1, amp_pos + 1):lower()
-    shortcut_col = vim.fn.strdisplaywidth(prefix)
+    shortcut_col = #prefix
     display      = prefix .. left:sub(amp_pos + 1)
   else
     display = left
@@ -76,10 +76,12 @@ M.default_keymaps = {
   down      = { "j", "<Down>" },
   exec      = { "<CR>" },
   close     = { "<Esc>", "q" },
-  submenu   = { "<Tab>", "<Right>" },  -- open submenu (popup / submenu)
-  back      = { "<Left>", "<BS>", "<S-Tab>" }, -- close submenu and return to parent
+  submenu   = { "<Tab>" },             -- open submenu
+  back      = { "<BS>", "<S-Tab>" },   -- close submenu and return to parent
   menu_prev = { "h" },                 -- bar: move to previous menu
   menu_next = { "l" },                 -- bar: move to next menu
+  nav_prev  = { "<Left>" },            -- context-sensitive: close submenu or prev menu
+  nav_next  = { "<Right>" },           -- context-sensitive: open submenu or next menu
   mouse     = { "<LeftMouse>" },
 }
 
@@ -111,6 +113,7 @@ function M.suppress_keys(buf)
     "<F1>", "<F2>", "<F3>", "<F4>", "<F5>", "<F6>",
     "<F7>", "<F8>", "<F9>", "<F10>", "<F11>", "<F12>",
     "<S-Tab>", "<LeftMouse>", "<RightMouse>", "<MiddleMouse>",
+    "<C-w>",
   }) do
     pcall(vim.keymap.set, "n", k, "<Nop>", opts)
   end

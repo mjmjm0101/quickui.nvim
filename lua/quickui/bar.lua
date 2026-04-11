@@ -16,6 +16,7 @@ local cfg = {
   keymaps                   = vim.deepcopy(util.default_keymaps),
   suppress_all_keys         = true,
   toggle_key                = "<Space>",
+  menubar_restore           = true,
 }
 
 local ns_bar = vim.api.nvim_create_namespace("quickui_bar")
@@ -35,6 +36,7 @@ local S = {
   menus        = {},
   menu_cols    = {},
   last_visible = 0,
+  saved        = { menu_name = nil, view_start = 1 },
 }
 
 -- ── helpers ───────────────────────────────────────────────────────────────────
@@ -317,11 +319,21 @@ end
 -- ── open / close / toggle ─────────────────────────────────────────────────────
 
 function M.open(registry)
-  S.prev_win   = vim.api.nvim_get_current_win()
-  S.menus      = visible_menus(registry)
-  S.menu_idx   = 1
-  S.view_start = 1
-  S.open       = true
+  S.prev_win = vim.api.nvim_get_current_win()
+  S.menus    = visible_menus(registry)
+  S.open     = true
+
+  if cfg.menubar_restore and S.saved.menu_name then
+    local found = 1
+    for i, m in ipairs(S.menus) do
+      if m.name == S.saved.menu_name then found = i; break end
+    end
+    S.menu_idx   = found
+    S.view_start = S.saved.view_start
+  else
+    S.menu_idx   = 1
+    S.view_start = 1
+  end
 
   if #S.menus == 0 then
     vim.notify("quickui: no menus to display", vim.log.levels.WARN)
@@ -364,6 +376,11 @@ function M.open(registry)
 end
 
 function M.close()
+  if cfg.menubar_restore and S.menus[S.menu_idx] then
+    S.saved.menu_name  = S.menus[S.menu_idx].name
+    S.saved.view_start = S.view_start
+  end
+
   close_drop()
 
   if S.bar_win and vim.api.nvim_win_is_valid(S.bar_win) then
@@ -401,6 +418,7 @@ function M.setup(opts)
   cfg.keymaps = util.resolve_keymaps(opts)
   if opts.suppress_all_keys ~= nil then cfg.suppress_all_keys = opts.suppress_all_keys end
   if opts.keymap             ~= nil then cfg.toggle_key        = opts.keymap             end
+  if opts.menubar_restore     ~= nil then cfg.menubar_restore    = opts.menubar_restore     end
 end
 
 return M

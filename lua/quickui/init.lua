@@ -16,6 +16,7 @@ local registry = {}
 ---   winblend          number|table  Transparency 0-100. number = both, { bar=, menu= } = individual
 ---   highlights        table         Override highlight groups
 ---   suppress_all_keys boolean       Map all keys to <Nop> in plugin buffers to block global keymaps (default: true)
+---   menubar_restore   boolean       Restore last open top-level menu and scroll position on reopen (default: true)
 ---   menus             table         List of menu spec tables. Each entry is a module that returns:
 ---                              { name=, priority=, conditions=, items= }
 ---                            name: menu title with & for shortcut

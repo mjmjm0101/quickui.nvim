@@ -213,6 +213,19 @@ suppress_all_keys ~
 <
 
 ------------------------------------------------------------------------------
+                                                   *quickui-opt-menubar-restore*
+menubar_restore ~
+  Type: `boolean`
+  Default: `true`
+
+  When `true`, the menubar remembers the last open top-level menu and scroll
+  position and restores them when reopened. If the previously open menu is no
+  longer visible (hidden by `conditions` or `ft`), the leftmost visible menu
+  is opened instead.
+
+  When `false`, the menubar always opens at the leftmost menu.
+
+------------------------------------------------------------------------------
                                                           *quickui-opt-menus*
 menus ~
   Type: `table`

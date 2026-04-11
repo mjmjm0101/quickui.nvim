@@ -209,6 +209,11 @@ require("quickui").setup({
   -- global keymaps. Set to false to leave global keymaps untouched.
   suppress_all_keys = true,
 
+  -- When true (default), remember the last open top-level menu and scroll
+  -- position and restore them when the menubar is reopened.
+  -- When false, always start from the leftmost menu.
+  menubar_restore = true,
+
   -- List of top-level menu specs (see Menu Definition below)
   menus = { ... },
 })

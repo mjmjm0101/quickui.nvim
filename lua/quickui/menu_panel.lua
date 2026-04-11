@@ -377,8 +377,16 @@ function M.open(items, anchor, cfg, opt, callbacks)
   bind(km.up,      function() move(-1) end)
   bind(km.down,    function() move(1)  end)
   bind(km.exec,    exec)
-  bind(km.submenu, open_child)
-  bind(km.back,    function() do_close(true) end)
+  bind(km.submenu,  open_child)
+  bind(km.nav_next, open_child)
+  bind(km.back,     function() do_close(true) end)
+  bind(km.nav_prev, function()
+    if callbacks.on_nav_prev then
+      callbacks.on_nav_prev()
+    else
+      do_close(true)
+    end
+  end)
   bind(km.close, function()
     if cfg.esc_closes_all then
       do_close(false)
@@ -400,7 +408,7 @@ function M.open(items, anchor, cfg, opt, callbacks)
     end
   end)
 
-  local sc_reserved = util.reserved_keys(km, { "up", "down", "exec", "close", "submenu", "back", "menu_prev", "menu_next" })
+  local sc_reserved = util.reserved_keys(km, { "up", "down", "exec", "close", "submenu", "back", "menu_prev", "menu_next", "nav_prev", "nav_next" })
   for i, item in ipairs(items) do
     if not item.separator then
       if item.shortcut then

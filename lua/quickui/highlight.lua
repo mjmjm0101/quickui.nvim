@@ -5,6 +5,7 @@ local defaults = {
   menubar           = { link = "StatusLine" },
   menubar_sel       = { link = "PmenuSel" },
   menubar_separator = { link = "NonText" },
+  menubar_indicator = { link = "WarningMsg" },
   menu              = { link = "Normal" },
   menu_border       = { link = "FloatBorder" },
   menu_sel          = { link = "PmenuSel" },
@@ -17,6 +18,7 @@ local hl_names = {
   menubar           = "QuickUIMenubar",
   menubar_sel       = "QuickUIMenubarSel",
   menubar_separator = "QuickUIMenubarSeparator",
+  menubar_indicator = "QuickUIMenubarIndicator",
   menu              = "QuickUIMenu",
   menu_border       = "QuickUIMenuBorder",
   menu_sel          = "QuickUIMenuSel",
@@ -42,6 +44,9 @@ function M.setup(overrides)
 
   -- Visual selection overlay used by context_visual()
   vim.api.nvim_set_hl(0, "QuickUIVisualSel", { default = true, link = "Visual" })
+
+  -- Cursor highlight used by the bar window to keep the cursor invisible
+  vim.api.nvim_set_hl(0, "QuickUIBarCursor", { default = true, blend = 100, nocombine = true })
 
   for key, name in pairs(hl_names) do
     local spec = vim.tbl_extend("force", { default = true }, defaults[key], overrides[key] or {})

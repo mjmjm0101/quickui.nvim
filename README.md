@@ -5,7 +5,7 @@
 
 Lightweight, keyboard-friendly TUI-style menus for Neovim (menubar + context menus)
 
-- **Menubar** — a non-focusable title strip at the top of the editor with a dropdown that opens below the selected title
+- **Menubar** — a title strip at the top of the editor with a dropdown that opens below the selected title
 - **Context menus** — floating popups positioned at the cursor (normal and visual mode)
 - Nested submenus (multi-level)
 - Per-item conditions (`conditions`) and filetype filters (`ft`)
@@ -167,6 +167,10 @@ require("quickui").setup({
   -- Separator character between menubar items. "" to disable (default: "│")
   menubar_separator = "│",
 
+  -- Scroll indicator shown when menus overflow the screen width (defaults: "<" / ">")
+  menubar_indicator_left  = "<",
+  menubar_indicator_right = ">",
+
   -- Icon displayed at the right edge of a submenu item (default: "›")
   submenu_icon = "›",
 
@@ -180,18 +184,21 @@ require("quickui").setup({
     menubar           = { bg = "#181825", fg = "#cdd6f4" },
     menubar_sel       = { bg = "#313244", fg = "#89b4fa" },
     menubar_separator = { fg = "#585b70", bg = "#181825" },
+    menubar_indicator = { fg = "#f38ba8", bold = true },
   },
 
   -- Keymap overrides (merged on top of defaults)
   keymaps = {
     up        = { "k", "<Up>" },
     down      = { "j", "<Down>" },
-    exec      = { "<CR>" },
+    exec      = { "<CR>" },           -- execute item (opens submenu if item has one)
     close     = { "<Esc>", "q" },
-    submenu   = { "<Tab>", "<Right>" },  -- open submenu
-    back      = { "<Left>", "<BS>", "<S-Tab>" }, -- close submenu and return to parent
+    submenu   = { "<Tab>" },             -- open submenu
+    back      = { "<BS>", "<S-Tab>" },   -- close submenu and return to parent
     menu_prev = { "h" },                 -- menubar: move to previous menu
     menu_next = { "l" },                 -- menubar: move to next menu
+    nav_prev  = { "<Left>" },            -- context-sensitive: close submenu or prev menu
+    nav_next  = { "<Right>" },           -- context-sensitive: open submenu or next menu
     mouse     = { "<LeftMouse>" },
   },
 
@@ -217,10 +224,12 @@ require("quickui").setup({
 | Move down                     | `j` / `<Down>`               |
 | Execute                       | `<CR>`                       |
 | Close                         | `<Esc>` / `q`                |
-| Open submenu                  | `<Tab>` / `<Right>`          |
-| Close submenu / back to parent| `<Left>` / `<BS>` / `<S-Tab>` |
+| Open submenu                  | `<Tab>`                      |
+| Close submenu / back to parent| `<BS>` / `<S-Tab>`           |
 | Menubar: previous menu        | `h`                          |
 | Menubar: next menu            | `l`                          |
+| Close submenu / prev menu     | `<Left>`                     |
+| Open submenu / next menu      | `<Right>`                    |
 | Mouse click                   | `<LeftMouse>`                |
 | Shortcut key (`&`)            | Character after `&` in name  |
 | Shortcut key (`key`)          | Value of the `key` item field |
@@ -426,6 +435,7 @@ end, { noremap = true, silent = true })
 | `QuickUIMenubar`           | `StatusLine`     | Menubar background                   |
 | `QuickUIMenubarSel`        | `PmenuSel`       | Selected menubar item                |
 | `QuickUIMenubarSeparator`  | `NonText`        | Menubar separator character          |
+| `QuickUIMenubarIndicator`  | `WarningMsg`     | Scroll indicator (`<` / `>`)         |
 | `QuickUIMenu`              | `Normal`         | Dropdown / popup background          |
 | `QuickUIMenuBorder`        | `FloatBorder`    | Window border                        |
 | `QuickUIMenuSel`           | `PmenuSel`       | Selected item row                    |

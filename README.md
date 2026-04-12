@@ -3,6 +3,8 @@
 > It provides a UI — but the goal isn't UI.  
 > It's about managing the cognitive load of your own Neovim setup, so nothing gets lost.
 
+![English concept](https://github.com/user-attachments/assets/f5985d92-0526-4113-9a72-3ea4a00f9cd2)
+
 Lightweight, keyboard-friendly TUI-style menus for Neovim (menubar + context menus)
 
 - **Menubar** — a title strip at the top of the editor with a dropdown that opens below the selected title

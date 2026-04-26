@@ -143,12 +143,14 @@ highlights ~
   Default: links to standard Neovim groups (see |quickui-highlights|)
 
   Override highlight groups. Each key corresponds to a quickui highlight.
-  `accent` and `rtxt` accept a hex color string as shorthand for `{ fg = color }`.
-  All other keys accept a table compatible with |nvim_set_hl()|. >lua
+  `accent`, `rtxt`, and `key` accept a hex color string as shorthand for
+  `{ fg = color }`. All other keys accept a table compatible with
+  |nvim_set_hl()|. >lua
 
     highlights = {
       accent              = "#89b4fa",
       rtxt                = "#a6e3a1",
+      key                 = "#f9e2af",
       menu                = { bg = "#1e1e2e", fg = "#cdd6f4" },
       menu_sel            = { bg = "#4974aa", fg = "#cdd6f4" },
       menu_border         = { fg = "#89b4fa" },
@@ -224,6 +226,28 @@ menubar_restore ~
   is opened instead.
 
   When `false`, the menubar always opens at the leftmost menu.
+
+------------------------------------------------------------------------------
+                                                       *quickui-opt-showkeys*
+showkeys ~
+  Type: `boolean`
+  Default: `false`
+
+  When `true`, the `key` field of each item is rendered in a dedicated
+  column to the right of the `rtxt` column, highlighted with
+  |hl-QuickUIMenuKey|. The rtxt-fallback (showing `key` in the rtxt
+  position when `rtxt` is not set) is disabled in this mode.
+
+  When `false` (default), `key` falls back to the rtxt column when `rtxt`
+  is not specified, matching the legacy behavior.
+
+  Submenu items never use the dedicated key column regardless of this
+  option; their `key` only acts as a kmap to open the submenu, while the
+  rtxt column shows `rtxt` (or `key` as fallback) followed by the
+  submenu icon at the far right. >lua
+
+    showkeys = true,
+<
 
 ------------------------------------------------------------------------------
                                                           *quickui-opt-menus*
@@ -321,8 +345,13 @@ Each entry in an `items` table is a table with the following fields:
   key ~
     Type: `string`
     A keybinding string (e.g. `"<C-s>"`) that triggers this item while the
-    menu is open. Also serves as the right-aligned hint text when `rtxt` is
-    not specified. >lua
+    menu is open. Display behavior depends on |quickui-opt-showkeys|:
+      - `showkeys = false` (default): falls back to the rtxt column when
+        `rtxt` is not specified.
+      - `showkeys = true`: rendered in its own column highlighted with
+        |hl-QuickUIMenuKey|.
+    Submenu items always use the kmap; the dedicated key column is
+    suppressed for them. >lua
 
       -- "<C-s>" is shown on the right and triggers Save from the menu
       { name = "&Save",  cmd = ":w<CR>",  key = "<C-s>" }
@@ -333,7 +362,8 @@ Each entry in an `items` table is a table with the following fields:
     Right-aligned text shown at the far right of the item row.
     Highlighted with |hl-QuickUIMenuRtxt|.
 
-    Priority rules when used with `key`:
+    Priority rules when used with `key` (assumes `showkeys = false`,
+    the default; see |quickui-opt-showkeys| for the dedicated-column mode):
       - `rtxt` not set (nil) and `key` set  → `key` string is shown as hint
       - `rtxt` set to a non-empty string    → `rtxt` is shown (overrides `key`)
       - `rtxt = ""`                         → nothing is shown, `key` still works >lua
@@ -492,7 +522,12 @@ linked group unless explicitly overridden.
 
   *hl-QuickUIMenuRtxt*
   QuickUIMenuRtxt            Default link: |hl-Special|
-    Right-aligned text column (`rtxt` field).
+    Right-aligned text column (`rtxt` field, or `key` fallback when
+    |quickui-opt-showkeys| is `false`).
+
+  *hl-QuickUIMenuKey*
+  QuickUIMenuKey             Default link: |hl-Special|
+    Dedicated key column. Active only when |quickui-opt-showkeys| is `true`.
 
   *hl-QuickUIVisualSel*
   QuickUIVisualSel           Default link: |hl-Visual|

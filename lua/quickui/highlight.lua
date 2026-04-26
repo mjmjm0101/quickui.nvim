@@ -11,6 +11,7 @@ local defaults = {
   menu_sel          = { link = "PmenuSel" },
   accent            = { link = "Special" },
   rtxt              = { link = "Special" },
+  key               = { link = "Special" },
 }
 
 -- Map from option key to highlight group name
@@ -24,22 +25,27 @@ local hl_names = {
   menu_sel          = "QuickUIMenuSel",
   accent            = "QuickUIMenuAccent",
   rtxt              = "QuickUIMenuRtxt",
+  key               = "QuickUIMenuKey",
 }
 
 --- Setup highlight groups.
 --- @param overrides table|nil
 ---   accent      string          e.g. "#89b4fa"  (fg color only)
 ---   rtxt        string          e.g. "#a6e3a1"  (fg color only)
+---   key         string          e.g. "#f9e2af"  (fg color only)
 ---   others      table           nvim_set_hl-compatible table ({ bg=, fg=, link=, ... })
 function M.setup(overrides)
   overrides = overrides or {}
 
-  -- accent/rtxt accept a plain color string as shorthand for { fg = color }
+  -- accent/rtxt/key accept a plain color string as shorthand for { fg = color }
   if type(overrides.accent) == "string" then
     overrides.accent = { fg = overrides.accent }
   end
   if type(overrides.rtxt) == "string" then
     overrides.rtxt = { fg = overrides.rtxt }
+  end
+  if type(overrides.key) == "string" then
+    overrides.key = { fg = overrides.key }
   end
 
   -- Visual selection overlay used by context_visual()

@@ -176,10 +176,16 @@ require("quickui").setup({
   -- Icon displayed at the right edge of a submenu item (default: "›")
   submenu_icon = "›",
 
+  -- When true, render `key` in a dedicated column with QuickUIMenuKey highlight,
+  -- separate from `rtxt`. When false, `key` falls back to the rtxt column when
+  -- `rtxt` is not set (default: false)
+  showkeys = false,
+
   -- Highlight group overrides
   highlights = {
     accent            = "#89b4fa",  -- shortcut letter (character after &)
     rtxt              = "#a6e3a1",  -- right-aligned text (rtxt field)
+    key               = "#f9e2af",  -- key column when showkeys = true
     menu              = { bg = "#1e1e2e", fg = "#cdd6f4" },
     menu_sel          = { bg = "#4974aa", fg = "#cdd6f4" },
     menu_border       = { fg = "#89b4fa" },
@@ -316,7 +322,7 @@ items = {
 |--------------|--------------------|--------------------------------------------------------------------------|
 | `name`       | string             | Display name. `&X` sets the shortcut key. `%{expr}` is evaluated at open time. |
 | `cmd`        | string \| function | Command to run. Strings are fed via `feedkeys`; functions receive `opt`. |
-| `key`        | string             | Keybinding active while the menu is open (e.g. `"<C-s>"`). Also used as the right-aligned hint text when `rtxt` is not specified. |
+| `key`        | string             | Keybinding active while the menu is open (e.g. `"<C-s>"`). When `showkeys = false` (default), falls back to the rtxt column if `rtxt` is not set. When `showkeys = true`, rendered in its own column with `QuickUIMenuKey` highlight. Submenu items always use the kmap; the column itself is suppressed for them. |
 | `rtxt`       | string             | Right-aligned text. Overrides `key` display when specified. Set to `""` to suppress display even if `key` is set. Supports `%{expr}` evaluation (same as `name`). |
 | `items`      | table              | Sub-item list — presence makes this item a submenu trigger.              |
 | `conditions` | bool \| function   | `false` hides the item. Function receives `opt`, return `false` to hide. |
@@ -447,7 +453,8 @@ end, { noremap = true, silent = true })
 | `QuickUIMenuBorder`        | `FloatBorder`    | Window border                        |
 | `QuickUIMenuSel`           | `PmenuSel`       | Selected item row                    |
 | `QuickUIMenuAccent`        | `Special`        | Shortcut character (after `&`)       |
-| `QuickUIMenuRtxt`          | `Special`        | Right-aligned text (`rtxt` field)    |
+| `QuickUIMenuRtxt`          | `Special`        | Right-aligned text (`rtxt` field, or `key` fallback) |
+| `QuickUIMenuKey`           | `Special`        | `key` column when `showkeys = true`  |
 | `QuickUIVisualSel`         | `Visual`         | Visual selection overlay (context_visual) |
 
 ---

@@ -5,10 +5,12 @@ local util = require("quickui.util")
 
 local mcfg = {
   submenu_icon = "›",
+  showkeys     = false,
 }
 
 local ns_item = vim.api.nvim_create_namespace("quickui_item_hl")
 local ns_acc  = vim.api.nvim_create_namespace("quickui_accent_hl")
+local ns_key  = vim.api.nvim_create_namespace("quickui_key_hl")
 local ns_sel  = vim.api.nvim_create_namespace("quickui_sel_hl")
 
 -- Cursor visibility management when winblend is active (supports nested panels)
@@ -34,42 +36,67 @@ end
 
 function M.setup(opts)
   if opts.submenu_icon ~= nil then mcfg.submenu_icon = opts.submenu_icon end
+  if opts.showkeys     ~= nil then mcfg.showkeys     = opts.showkeys     end
 end
 
 -- ── line builder ──────────────────────────────────────────────────────────────
 
--- Returns lines, width, and rtxt_hl: array indexed by item position.
--- rtxt_hl[i] = { col, end_col } for right-text highlight, or nil.
+-- Returns lines, width, rtxt_hl, and key_hl: arrays indexed by item position.
+-- Right side has up to three columns, in order: rtxt, key, submenu_icon.
+-- The submenu_icon column appears only on items that actually have one (no
+-- whole-panel reservation), so non-submenu rows extend further to the right.
+-- rtxt_hl[i] / key_hl[i] = { col, end_col } for the rtxt / key highlight, or nil.
+-- submenu_icon is rendered without highlight.
 local function build_lines(items, min_w)
   local max_w  = min_w or 10
   local widths = {}
   for i, item in ipairs(items) do
     if not item.separator then
       local dw = vim.fn.strdisplaywidth(item.display)
-      local rw = item.right and vim.fn.strdisplaywidth(item.right) or 0
-      widths[i] = { dw = dw, rw = rw }
-      local w = dw + 2
-      if item.right then w = w + rw + 2 end
+      local rw = item.right       and vim.fn.strdisplaywidth(item.right)       or 0
+      local kw = item.right_key   and vim.fn.strdisplaywidth(item.right_key)   or 0
+      local aw = item.right_arrow and vim.fn.strdisplaywidth(item.right_arrow) or 0
+      widths[i] = { dw = dw, rw = rw, kw = kw, aw = aw }
+      local w = dw + 2  -- " display" + minimum 1-space pad
+      if item.right       then w = w + rw + 1 end
+      if item.right_key   then w = w + kw + 1 end
+      if item.right_arrow then w = w + aw + 1 end
+      if item.right or item.right_key or item.right_arrow then w = w + 1 end  -- trailing space
       if w > max_w then max_w = w end
     end
   end
 
   local lines   = {}
   local rtxt_hl = {}
+  local key_hl  = {}
   for i, item in ipairs(items) do
     if item.separator then
       table.insert(lines, string.rep("─", max_w))
-    elseif item.right then
-      local l   = " " .. item.display
-      local r   = item.right .. " "
-      local w   = widths[i]
-      local pad = max_w - (w.dw + 1) - (w.rw + 1)
+    elseif item.right or item.right_key or item.right_arrow then
+      local l = " " .. item.display
+      local w = widths[i]
+
+      local segs = {}
+      local r_dwidth = 0
+      if item.right       then segs[#segs + 1] = item.right;       r_dwidth = r_dwidth + w.rw end
+      if item.right_key   then segs[#segs + 1] = item.right_key;   r_dwidth = r_dwidth + w.kw end
+      if item.right_arrow then segs[#segs + 1] = item.right_arrow; r_dwidth = r_dwidth + w.aw end
+      r_dwidth = r_dwidth + #segs  -- separator + trailing spaces, one per segment
+
+      local pad = max_w - (w.dw + 1) - r_dwidth
       if pad < 1 then pad = 1 end
-      if not item.submenu then
-        local col = #l + pad
-        rtxt_hl[i] = { col = col, end_col = col + #item.right }
+
+      local cur = #l + pad
+      if item.right then
+        rtxt_hl[i] = { col = cur, end_col = cur + #item.right }
+        cur = cur + #item.right + 1
       end
-      table.insert(lines, l .. string.rep(" ", pad) .. r)
+      if item.right_key then
+        key_hl[i] = { col = cur, end_col = cur + #item.right_key }
+        cur = cur + #item.right_key + 1
+      end
+
+      table.insert(lines, l .. string.rep(" ", pad) .. table.concat(segs, " ") .. " ")
     else
       local l   = " " .. item.display
       local pad = max_w - (widths[i].dw + 1)
@@ -77,7 +104,7 @@ local function build_lines(items, min_w)
       table.insert(lines, l .. string.rep(" ", pad))
     end
   end
-  return lines, max_w, rtxt_hl
+  return lines, max_w, rtxt_hl, key_hl
 end
 
 -- ── highlight helpers ─────────────────────────────────────────────────────────
@@ -113,6 +140,24 @@ local function apply_accent_hl(buf, ns, items, rtxt_hl)
         vim.api.nvim_buf_set_extmark(buf, ns, i - 1, rhl.col, {
           end_col  = rhl.end_col,
           hl_group = "QuickUIMenuRtxt",
+          hl_mode  = "combine",
+          priority = 200,
+        })
+      end
+    end
+  end
+end
+
+local function apply_key_hl(buf, ns, items, key_hl)
+  vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+  if not key_hl then return end
+  for i, item in ipairs(items) do
+    if not item.separator then
+      local khl = key_hl[i]
+      if khl then
+        vim.api.nvim_buf_set_extmark(buf, ns, i - 1, khl.col, {
+          end_col  = khl.end_col,
+          hl_group = "QuickUIMenuKey",
           hl_mode  = "combine",
           priority = 200,
         })
@@ -170,10 +215,18 @@ function M.parse_items(raw_items, opt)
   for _, raw in ipairs(raw_items) do
     if raw.items ~= nil then
       if util.item_conditions(raw, opt) then
-        local p   = util.parse_label(raw.name)
-        p.submenu = raw.items
-        p.right   = mcfg.submenu_icon
-        p.hl      = raw.hl
+        local p = util.parse_label(raw.name)
+        p.submenu     = raw.items
+        p.hl          = raw.hl
+        p.key         = raw.key
+        p.right_arrow = mcfg.submenu_icon
+        -- submenu items never use the dedicated key column; rtxt position
+        -- holds rtxt or key (fallback). submenu_icon is always shown to the right.
+        if raw.rtxt ~= nil and raw.rtxt ~= "" then
+          p.right = util.parse_label(raw.rtxt).display
+        elseif raw.key ~= nil then
+          p.right = raw.key
+        end
         table.insert(result, p)
       end
     elseif util.item_conditions(raw, opt) and util.ft_match(raw.ft, opt.filetype) then
@@ -184,12 +237,16 @@ function M.parse_items(raw_items, opt)
         p.hl  = raw.hl
         -- rtxt display priority:
         --   rtxt explicitly set (non-empty) → show rtxt
-        --   rtxt = ""                        → show nothing (overrides key)
-        --   rtxt nil + key set               → show key as rtxt fallback
+        --   rtxt = ""                        → show nothing (overrides key fallback)
+        --   rtxt nil + key set + showkeys=false → show key as rtxt fallback
         if raw.rtxt ~= nil then
           if raw.rtxt ~= "" then p.right = util.parse_label(raw.rtxt).display end
-        elseif raw.key ~= nil then
+        elseif raw.key ~= nil and not mcfg.showkeys then
           p.right = raw.key
+        end
+        -- showkeys=true: render key in its own column (no rtxt fallback)
+        if mcfg.showkeys and raw.key ~= nil then
+          p.right_key = raw.key
         end
       end
       table.insert(result, p)
@@ -238,7 +295,7 @@ function M.open(items, anchor, cfg, opt, callbacks)
     return { buf = nil, close = noop, close_silent = noop, move = noop, exec = noop }
   end
 
-  local lines, width, rtxt_hl = build_lines(items, cfg.min_width or 0)
+  local lines, width, rtxt_hl, key_hl = build_lines(items, cfg.min_width or 0)
   local has_border   = cfg.border and cfg.border ~= "none"
   local relative, row, col, height = calc_pos(anchor, width, #lines, has_border)
 
@@ -287,6 +344,7 @@ function M.open(items, anchor, cfg, opt, callbacks)
 
   apply_item_hl(buf, ns_item, items, lines)
   apply_accent_hl(buf, ns_acc, items, rtxt_hl)
+  apply_key_hl(buf, ns_key, items, key_hl)
 
   local function hl()
     vim.api.nvim_buf_clear_namespace(buf, ns_sel, 0, -1)
